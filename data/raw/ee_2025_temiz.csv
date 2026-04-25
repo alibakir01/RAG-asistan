@@ -1,0 +1,44 @@
+Dönem,Ders Kodu,Ders Adı,Ön Şart,Teorik,Lab.,Kredi,AKTS
+1,MATH 161,Calculus I for Electrical-Electronics Eng.,-,5,0,5,7
+1,PHYS 105,Physics I for Electrical-Electronics Eng.,-,3,2,4,5
+1,PHYS 107,Physics I Laboratory,-,0,2,1,2
+1,EE 101,Introduction to Programming,-,2,2,3,5
+1,MATH 165,Linear Algebra for Electrical-Electronics Eng.,-,4,0,4,5
+1,ENG 101,English 1,-,4,0,4,4
+1,GLB 101,AGU Ways,-,3,0,3,4
+2,MATH 162,Calculus II for Electrical-Electronics Eng.,-,5,0,5,7
+2,PHYS 104,Physics II for Electrical-Electronics Eng.,-,3,2,4,5
+2,PHYS 108,Physics II Laboratory,-,0,2,1,2
+2,EE 221,Circuit Theory I,-,4,2,5,7
+2,ENG 102,English II,-,4,0,4,4
+2,CP100,Career Planning,-,1,0,1,1
+2,GLB 1XX,Global Issues Elective I,-,3,0,3,4
+3,MATH 207,Differential Equations for Electrical-Electronics Eng.,-,4,0,4,5
+3,EE 204,Signals and Systems,-,3,2,4,6
+3,EE 222,Circuit Theory II,-,4,2,5,7
+3,EE 205,Engineering Electromagnetics,-,3,0,3,4
+3,TURK 01,Turkish Language Pool I,-,2,0,2,2
+3,MATH 261,Numerical Analysis,-,3,0,3,4
+3,GLB 2XX,Global Issues Elective II,-,3,0,3,4
+4,EE 203,Digital Design,-,3,0,3,4
+4,EE 215,Digital Design Lab with HDL,-,2,2,3,4
+4,EE 206,Electronics I,-,4,0,4,5
+4,EE 216,Electronics I Lab,-,0,2,1,2
+4,MATH 206,Discrete Mathematics,-,4,0,4,5
+4,MATH 208,Advanced Mathematics,-,3,2,4,5
+4,TURK 02,Turkish Language Pool II,-,2,0,2,2
+4,GLB 2XX,Global Issues Elective III,-,3,0,3,4
+5,EE 361,Electromechanical Energy Conversion I,-,3,2,4,5
+5,EETx1,Technical Electives 1,-,-,-,-,10
+5,MATH 301,Probability and Statistics,-,3,0,3,5
+5,GLB 3XX,Global Issues Elective IV,-,3,0,3,4
+5,HIST 01,History of Turkey Pool I,-,2,0,2,2
+5,EE 298,Summer Internship I,-,0,2,1,5
+6,EE 3999,Senior Design Project Capsule 1,-,0,2,1,5
+6,EETx2,Technical Electives 2,-,-,-,-,25
+6,HIST 02,History of Turkey Pool II,-,2,0,2,2
+7,EETx3,Technical Electives 3,-,-,-,-,20
+7,EE 4999,Senior Design Project Capsule II,-,0,2,1,10
+7,OHS 401,Occupational Health and Safety I,-,2,0,2,1
+8,EE 400,Workplace Experience,-,5,0,5,28
+8,OHS 402,Occupational Health and Safety II,-,2,0,2,1

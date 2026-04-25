@@ -1,0 +1,51 @@
+Ders Kodu,Ders Adı,Ön Şart,Teo.,Lab.,Kredi,AKTS
+IE 345,Financial and Managerial Accounting,-,3,0,3,5
+IE 388,Quality Control and Assurance,IE 202,3,0,3,5
+IE 326,Business Analytics,"IE 212, IE 202",3,0,3,6
+IE 395,Decision and Risk Analysis,"IE 212, IE 201",3,0,3,5
+IE 351,Project Management,-,3,0,3,5
+IE 374,Supply Chain Management,IE 211,3,0,3,5
+IE 417,Heuristic Methods in Optimization,IE 212,3,0,3,5
+,,,,,,
+Matematik Seçmelileri,,,,,,
+Ders Kodu,Ders Adı,Ön Şart,Teo.,Lab.,Kredi,AKTS
+MATH 205,Differential Equations,-,3,0,3,5
+IE 468,Machine Scheduling,IE 212,3,0,3,5
+IE 402,Discrete Mathematics,-,3,0,3,5
+IE 415,Discrete Optimization,IE 212,3,0,3,5
+IE 416,Nonlinear Programing,IE 212,3,0,3,5
+,,,,,,
+Son Sınıf Seçmelileri,,,,,,
+Ders Kodu,Ders Adı,Ön Şart,Teo.,Lab.,Kredi,AKTS
+IE 498,Capstone Design Project 2,IE 497,0,2,1,10
+IETX,Technical Elective*,-,-,-,-,5
+IETX,Technical Elective*,-,-,-,-,5
+IE 400,Workplace Experience,IE 497,0,2,1,20
+,,,,,,
+ie-Teknik Seçmelileri,,,,,,
+Ders Kodu,Ders Adı,Ön Şart,Teo.,Lab.,Kredi,AKTS
+IE 345,Financial and Managerial Accounting,-,3,0,3,5
+IE 388,Quality Control and Assurance,IE 202,3,0,3,5
+IE 326,Business Analytics,"IE 212, IE 202",3,0,3,6
+IE 395,Decision and Risk Analysis,"IE 212, IE 202",3,0,3,5
+IE 351,Project Management,-,3,0,3,5
+IE 374,Supply Chain Management,IE 211,3,0,3,5
+IE 417,Heuristic Methods in Optimization,IE 212,3,0,3,5
+IE 348,Marketing Engineering,-,3,0,3,5
+IE 353,Strategic Management,-,3,0,3,5
+IE 358,Ergonomics,-,3,0,3,5
+IE 391,Industry Applications I,-,3,0,3,5
+IE 392,Industry Applications II,-,3,0,3,5
+IE 415,Discrete Optimization,IE 212,3,0,3,5
+IE 416,Nonlinear Programming,IE 212,3,0,3,5
+IE 425,System Dynamics,-,3,0,3,5
+IE 448,International Marketing Tool: Turquality,-,3,0,3,5
+IE 454,Sustainable Energy Systems,-,3,0,3,5
+IE 461,Manufacturing Systems,-,3,0,3,5
+IE 462,Lean Manufacturing,-,3,0,3,5
+IE 464,Operations Research Models in Disaster Management,-,3,0,3,5
+IE 472,Production Planning and Scheduling,-,3,0,3,5
+IE 474,Humanitarian Logistics,-,3,0,3,5
+IE 475,Facility Layout and Location,-,3,0,3,5
+IE 468,Machine Scheduling,IE 212,3,0,3,5
+IE 486,Healthcare Operations Management,-,3,0,3,5

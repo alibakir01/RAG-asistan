@@ -1,0 +1,38 @@
+# API anahtarları (HASSAS)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtualenv
+venv/
+.venv/
+env/
+
+# ChromaDB indeksi (büyük binary, embed.py ile yeniden üretilebilir)
+data/chroma/
+
+# Geçici / debug dosyaları
+me_pdf_dump.txt
+scratch_inspect.py
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Claude Code session
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db

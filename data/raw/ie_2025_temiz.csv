@@ -1,0 +1,51 @@
+Dönem,Ders Kodu,Ders Adı,Ön Şart,Teorik,Lab.,Kredi,AKTS
+1,MATH 101,Calculus I,-,5,0,5,7
+1,PHYS 101,Physics I,-,3,2,4,5
+1,PHYS 107,Physics Laboratory I,-,0,2,1,2
+1,COMP 103,Art of Computing,-,3,2,4,5
+1,GLB 101,AGU Ways,-,3,0,3,4
+1,ENG 101,English I,BRIDGE,4,0,4,4
+1,CHEM 101,Chemistry for Engineers,-,3,2,4,5
+2,MATH 102,Calculus II,MATH 101,5,0,5,7
+2,BIO 101,Biology for Engineers I,-,3,2,4,5
+2,COMP 112,Object Oriented Programming,COMP 103,3,2,4,5
+2,IE 100,Exploring Profession,-,2,0,2,4
+2,GLB 1XX,Global Issues Elective I,-,3,0,3,4
+2,ENG 102,English II,ENG 101,4,0,4,4
+2,CP 100,Career Planning,-,1,0,1,1
+3,MATH 203,Linear Algebra,-,3,0,3,5
+3,IE 201,Probability,MATH 101,3,0,3,6
+3,IE 211,Mathematical Modeling,MATH 101,3,2,4,7
+3,ECON 222,Economics for Engineers,-,3,0,3,4
+3,TURK 01,Turkish Language Pool I,-,2,0,2,2
+3,GLB 2XX,Global Issues Elective II,-,3,0,3,4
+3,HIST 01,History of Turkey Pool I,-,2,0,2,2
+4,IE 202,Statistics,IE 201,2,2,3,7
+4,IE 212,Deterministic Optimization,"MATH 203, IE 211",4,0,4,7
+4,IE 242,Business Process Analysis and Design,-,3,0,3,5
+4,TURK 02,Turkish Language Pool II,-,2,0,2,2
+4,GLB 2XX,Global Issues Elective III,-,3,0,3,4
+4,PHYS 102,Physics II,-,2,2,4,5
+4,PHYS 108,Physics II LAB,-,0,2,1,2
+5,IE 375,Production and Service Systems Management I,IE 211,4,0,4,6
+5,IE 325,System Simulation,IE 202,3,2,4,7
+5,IE 335,Stochastic Models,IE 201,3,0,3,5
+5,IE 346,Engineering Economics and Cost Analysis,-,3,0,3,5
+5,IEMX,Math Elective,-,3,0,3,5
+5,GLB 3XX,Global Issues Elective IV,-,3,0,3,4
+6,IE 376,Production and Service Systems Management II,IE 375,4,0,4,6
+6,IEDX,IE Elective,-,3,0,3,5
+6,IEDX,IE Elective,-,3,0,3,5
+6,IEDX,IE Elective,-,3,0,3,5
+6,HIST 02,History of Turkey Pool II,-,2,0,2,2
+6,COMP 204,Database Management Systems,-,3,0,3,5
+7,IE 497,Capstone Design Project I,160 AKTS + Temel Dersler,0,2,1,10
+7,OHS 401,Occupational Health and Safety I,-,2,0,2,1
+7,IETX,Technical Elective,-,-,-,-,5
+7,IENX,Elective (Non-technical),-,-,-,-,4
+7,IETX,Technical Elective,-,-,-,-,5
+7,IENX,Elective (Non-technical),-,-,-,-,4
+8,OHS 402,Occupational Health and Safety II,-,2,0,2,1
+8,IE 298,Summer Practice I,3 Dönem Şartı,-,2,1,5
+8,IE 398,Summer Practice II,5 Dönem Şartı,-,2,1,5
+8,IESX,Senior Elective,-,-,2,1,20

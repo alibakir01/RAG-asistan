@@ -1,0 +1,51 @@
+Dönem,Ders Kodu,Ders Adı,Ön Şart,Teorik,Lab.,Kredi,AKTS
+1,MATH 151,Calculus I,-,5,0,5,6
+1,PHYS 101,Physics I,-,3,2,4,5
+1,COMP 101,Art of Computing,-,3,2,4,6
+1,GLB 101,AGU Ways,-,3,0,3,4
+1,ENG 101,English I,-,4,0,4,4
+1,CE 101,Civil Engineering Drawing,-,1,2,2,5
+2,MATH 152,Calculus II,MATH 151,5,0,5,6
+2,PHYS 102,Physics II,-,3,2,4,5
+2,CE 102,Exploring Profession,-,2,2,3,5
+2,GLB XXX,Global Issues Elective I,-,3,0,3,4
+2,CHEM 101,Chemistry for Engineers,-,3,2,4,5
+2,ENG 102,English II,ENG 101,4,0,4,4
+2,CP100.CE,Career Planning,-,1,0,1,1
+3,CE 221,Mechanics,-,4,0,4,6
+3,ECON 222,Economics for Engineers,-,3,0,3,4
+3,MATH 205,Differential Equations,MATH 152,4,0,4,5
+3,CE 241,Materials Science,-,2,1,3,5
+3,CE 262,Geology for Civil Engineering,-,3,0,3,4
+3,GLB XXX,Global Issues Elective II,-,3,0,3,4
+3,TURK XXX,Turkish Language Pool I,-,2,0,2,2
+4,CE 222,Strength of Materials,CE 221,3,2,4,6
+4,MATH 203,Linear Algebra,-,3,0,3,5
+4,CE 244,Materials of Construction,-,2,1,3,4
+4,CE 272,Fluid Mechanics,-,3,0,3,5
+4,CE 202,Numerical Methods for Engineers,-,3,0,3,4
+4,GLB XXX,Global Issues Elective III,-,3,0,3,4
+4,TURK XXX,Turkish Language Pool II,-,2,0,2,2
+5,CE 300,Summer Practice,-,0,2,1,5
+5,MATH 301,Probability and Statistics,MATH 152,3,0,3,5
+5,CE 371,Hydromechanics,CE 272,3,1,4,5
+5,CE 363,Soil Mechanics,-,3,2,4,5
+5,CE 383,Structural Analysis,CE 221,4,0,4,5
+5,GLB XXX,Global Issues Elective IV,-,3,0,3,4
+5,HIST 2XX,History of Turkey Pool I,-,2,0,2,2
+6,CE 332,Construction Engineering and Management,-,3,0,3,5
+6,CE 366,Foundation Engineering,CE 363,3,1,4,5
+6,CE 374,Hydrology and Water Resources Engineering,CE 272,4,0,4,5
+6,CE 382,Reinforced Concrete,CE 222,3,0,3,5
+6,CE 352,Introduction to Transportation and Traffic Eng.,-,2,1,3,4
+6,XXX,Non-Technical Elective,-,3,0,3,4
+6,HIST 2XX,History of Turkey Pool II,-,2,0,2,2
+7,CE 403,Capstone Design,-,0,2,1,7
+7,CE 481,Fundamentals of Steel Design,CE 222,3,2,4,6
+7,-,Technical Elective,-,3,0,3,4
+7,-,Technical Elective,-,3,0,3,4
+7,-,Technical Elective,-,3,0,3,4
+7,-,Technical Elective,-,3,0,3,4
+7,OHS 401,Occupational Health and Safety I,-,2,0,2,1
+8,CE 404,Workplace Experience,-,1,0,1,29
+8,OHS 402,Occupational Health and Safety II,-,1,0,1,1

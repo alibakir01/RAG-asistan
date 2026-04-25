@@ -1,0 +1,51 @@
+Dönem,Ders Kodu,Ders Adı,Ön Şart,Teorik,Lab.,Kredi,AKTS
+1,MATH 151,Calculus I,-,5,0,5,6
+1,PHYS 101,Physics I,-,3,2,4,5
+1,COMP 101,Art of Computing,-,3,2,4,6
+1,ENG 101,English I,-,4,0,4,4
+1,GLB 101,AGU Ways,-,3,0,3,4
+1,CHEM 101,Chemistry for Engineers,-,3,2,4,5
+2,MATH 152,Calculus II,MATH 151,5,0,5,6
+2,BIO 101,Biology for Engineers I,-,3,2,4,5
+2,COMP 112,Object Oriented Programming,COMP 101,3,2,4,6
+2,ENG 102,English II,ENG 101,4,0,4,4
+2,GLB XXX,Global Issues Elective I,-,3,0,3,4
+2,IE 102,Exploring Profession,-,3,2,4,5
+3,MATH 203,Linear Algebra,-,3,0,3,5
+3,IE 221,Probability,-,3,0,3,6
+3,IE 213,Mathematical Modeling,MATH 152,3,2,4,7
+3,ECON 222,Economics for Engineers,-,3,0,3,4
+3,TURK 101,Turkish I,-,2,0,2,2
+3,GLB XXX,Global Issues Elective II,-,3,0,3,4
+3,-,Elective (Non-technical),-,-,-,-,1
+4,IE 222,Statistics,IE 221,4,0,4,7
+4,IE 212,Deterministic Optimization,"MATH 203, IE 213",4,0,4,7
+4,IE 242,Business Process Analysis and Design,-,3,0,3,5
+4,COMP 204,Database Management Systems,-,3,0,3,6
+4,TURK 102,Turkish II,-,2,0,2,2
+4,GLB XXX,Global Issues Elective III,-,3,0,3,4
+5,IE 375,Production and Service Systems Management I,"IE 222, IE 212",4,0,4,6
+5,IE 325,System Simulation,IE 222,3,2,4,7
+5,IE 335,Stochastic Models,IE 221,3,0,3,5
+5,IE 345,Financial and Managerial Accounting,-,3,0,3,4
+5,HIST 201,History of Modern Turkey I,-,2,0,2,2
+5,GLB XXX,Global Issues Elective IV,-,3,0,3,4
+6,IE 376,Production and Service Systems Management II,IE 375,4,0,4,6
+6,IE 346,Engineering Economics and Cost Analysis,-,3,0,3,5
+6,IE 380,Quality Control and Assurance,IE 222,3,0,3,4
+6,IE 326,Business Analytics,"IE 212, IE 222",3,0,3,5
+6,IE 395,Decision and Risk Analysis,"IE 221, IE 212",3,0,3,5
+6,HIST 202,History of Modern Turkey II,-,2,0,2,2
+6,-,Elective (Non-technical),-,-,-,-,5
+7,IE 497,Systems Analysis and Design Project I,"IE 212, IE 222, IE 376",4,0,4,10
+7,OHS 401,Occupational Health and Safety I,-,2,0,2,1
+7,IE 197,Summer Training I,-,-,-,-,4
+7,-,Elective,-,-,-,-,5
+7,-,Elective,-,-,-,-,5
+7,-,Elective (Non-technical),-,-,-,-,5
+8,IE 498,Systems Analysis and Design Project II,IE 497,4,0,4,10
+8,OHS 402,Occupational Health and Safety II,-,1,0,1,1
+8,IE 297,Summer Training II,-,-,-,-,5
+8,IE 397,Summer Training III,-,-,-,-,6
+8,-,Elective,-,-,-,-,4
+8,-,Elective (Non-technical),-,-,-,-,4

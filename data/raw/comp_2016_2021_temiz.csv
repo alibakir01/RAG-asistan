@@ -1,0 +1,48 @@
+Dönem,Ders Kodu,Ders Adı,Ön Şart,Teorik,Lab.,Kredi,AKTS
+1,MATH 151,Matematik I,-,5,0,5,6
+1,-,Fen Seçmeli*,-,-,-,-,5
+1,COMP 101,Programlama Sanatı,-,3,2,4,6
+1,XXX,Teknik Olmayan Seçmeli-4,-,-,-,-,4
+1,GLB 101,AGU Ways,-,3,0,3,4
+1,ENG 101,İngilizce I,-,4,0,4,4
+2,MATH 152,Matematik II,MATH 151,5,0,5,6
+2,PHYS 102,Fizik II,-,3,2,4,5
+2,COMP 112,Nesne Yönelimli Programlama,COMP 101,3,2,4,6
+2,COMP 104,Bilgisayar Mühendisliğini Keşfetme,-,3,2,4,6
+2,GLB XXX,Küresel Konular Seçmeleri I,-,3,0,3,4
+2,ENG 102,İngilizce II,ENG 101,4,0,4,4
+3,MATH 203,Lineer Cebir,-,3,0,3,5
+3,COMP 203,Veri Yapıları ve Algoritmalar,COMP 112,3,2,4,7
+3,COMP 205,Mobil Programlama,COMP 101,3,2,4,7
+3,EE 203,Sayısal Tasarım,-,3,0,3,4
+3,EE 213,Sayısal Tasarım Lab,-,1,2,2,2
+3,GLB XXX,Küresel Konular Seçmeleri II,-,3,0,3,4
+3,TURK 101,Türkçe I,-,2,0,2,2
+4,MATH 206,Ayrık Matematik,-,3,0,3,5
+4,COMP 202,Yazılım Mühendisliği,COMP 101,3,0,3,7
+4,COMP 204,Veritabanı Yönetim Sistemleri,COMP 101,3,0,3,6
+4,-,Teknik Seçmeli,-,-,-,-,5
+4,GLB XXX,Küresel Konular Seçmeleri III,-,3,0,3,4
+4,TURK 102,Türkçe II,-,2,0,2,2
+5,COMP 351,Yaz Stajı I,-,1,0,1,2
+5,MATH 301,Olasılık ve İstatistik,MATH 152,3,0,3,5
+5,COMP 301,Algoritma Analizi,COMP 203,3,2,4,6
+5,COMP 303,İşletim Sistemleri,COMP 203,3,0,3,6
+5,COMP 305,Bilgisayar Organizasyonu,EE 203,3,2,3,6
+5,GLB XXX,Küresel Konular Seçmeleri IV,-,3,0,3,4
+5,HIST 201,Türkiye Tarihi I,-,2,0,2,2
+6,COMP 302,Sistem Programlama,COMP 112,3,2,4,5
+6,EE 304,Gömülü Sistemler,EE 203,3,2,4,6
+6,COMP 306,Biçimsel Diller ve Otomata Teorisi,-,3,2,4,6
+6,COMP 308,Bilgisayar Ağları,-,3,0,3,6
+6,XXX,Teknik Olmayan Seçmeli-4,-,-,-,-,4
+6,HIST 202,Türkiye Tarihi II,-,2,0,2,2
+7,COMP 451,Yaz Stajı II,-,1,0,1,4
+7,COMP 491,Bitirme Projesi I,-,2,0,2,8
+7,-,Teknik Seçmeli,-,-,-,-,5
+7,-,Teknik Seçmeli,-,-,-,-,5
+7,-,Teknik Seçmeli,-,-,-,-,5
+7,XXX,Teknik Olmayan Seçmeli-3,-,-,-,-,3
+7,OHS 401,İş Güvenliği ve Sağlık I,-,2,0,2,1
+8,COMP 400,İş Yeri Deneyimi,-,1,0,1,28
+8,OHS 402,İş Güvenliği ve Sağlık II,-,1,0,1,1

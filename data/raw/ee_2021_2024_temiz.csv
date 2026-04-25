@@ -1,0 +1,45 @@
+Dönem,Ders Kodu,Ders Adı,Ön Şart,Teorik,Lab.,Kredi,AKTS
+1,MATH 153,Calculus I for EE,-,5,0,5,6
+1,PHYS 105,Physics I for EE,-,3,2,4,5
+1,EE 101,Introduction to Programming (EE 1100 Capsule),-,2,2,3,5
+1,MATH 103,Linear Algebra for EE (EE 1100 Capsule),-,3,0,3,4
+1,EDU 100,Life at AGU (EE 1100 Capsule),-,2,0,2,2
+1,ENG 101,English I,-,4,0,4,4
+1,GLB 101,AGU Ways,-,3,0,3,4
+2,MATH 154,Calculus II for EE,MATH 153,5,0,5,6
+2,PHYS 104,Physics II for EE,PHYS 105,3,2,4,5
+2,EE 201,Electric Circuits I (EE 1200 Capsule),-,4,0,4,6
+2,EE 211,Electric Circuits I Lab (EE 1200 Capsule),-,0,3,2,3
+2,CP100.EE,Career Planning (EE 1200 Capsule),-,1,0,1,1
+2,EDU 101,Prof. and Personal Development I (EE 1200 Capsule),-,1,0,1,1
+2,ENG 102,English II,ENG 101,4,0,4,4
+2,GLB XXX,Global Issues Elective I,-,3,0,3,4
+3,EE 202,Electric Circuits II (EE 2100 Capsule),EE 201,4,0,4,6
+3,EE 212,Electric Circuits II Lab (EE 2100 Capsule),EE 211,0,3,2,3
+3,EE 204,Signals and Systems (EE 2100 Capsule),EE 101,3,2,4,6
+3,MATH 207,Differential Equations for EE,MATH 154,4,0,4,5
+3,EE 205,Engineering Electromagnetics,"PHYS 104, MATH 154",3,0,3,4
+3,TURK XXX,Turkish Language Pool 1,-,2,0,2,2
+3,GLB XXX,Global Issues Elective II,-,3,0,3,4
+4,EE 203,Digital Design (EE 2200 Capsule),-,3,0,3,4
+4,EE 215,Digital Design Lab with HDL (EE 2200 Capsule),-,2,2,3,4
+4,EE 206,Electronics I (EE 2200 Capsule),EE 201,4,0,4,5
+4,EE 216,Electronics I Lab (EE 2200 Capsule),EE 201,0,2,1,2
+4,MATH 301,Probability and Statistics,-,3,0,3,5
+4,EE 200,Personal and Professional Development II,-,2,0,2,2
+4,TURK XXX,Turkish Language Pool 2,-,2,0,2,2
+4,HIST 2XX,History of Turkey Pool 1,-,2,0,2,2
+4,GLB XXX,Global Issues Elective III,-,3,0,3,4
+5,EE 300,Professional and Personal Development III,-,1,0,1,1
+5,GLB XXX,Global Issues Elective IV,-,3,0,3,4
+5,HIST 2XX,History of Turkey Pool 2,-,2,0,2,2
+5,EE 298,Summer Internship I,-,0,2,1,5
+5,-,Elective Capsules,-,-,-,-,20
+6,EE 3999,Senior Design Project Capsule I,-,0,2,1,5
+6,XXX,Non-Technical Elective,-,-,-,-,3
+6,-,Elective Capsules,-,-,-,-,20
+7,EE 4999,Senior Design Project Capsule II,-,0,2,1,10
+7,OHS 401,Occupational Health and Safety I,-,2,0,2,1
+7,-,Elective Capsules,-,-,-,-,20
+8,EE 400,Workplace Experience,-,5,0,5,28
+8,OHS 402,Occupational Health and Safety II,-,2,0,2,1
