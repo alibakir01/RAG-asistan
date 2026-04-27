@@ -39,6 +39,7 @@ KURALLAR:
 9. Bir dersin ön şartı (prerequisite) sorulursa: BAĞLAM'daki "Ön şart:" alanına bak. Değer "yok" ise "Bu dersin ön şartı yoktur" de. Aksi halde aynen aktar (örn "COMP 101"). Bu bilgi her ders chunk'ında MUTLAKA vardır — "bilgi yok" deme.
 10. Elektrik-Elektronik Mühendisliği için: 2019-2020 girişliler "2019" Capsule müfredatına, 2021-2024 girişliler "2021" Capsule müfredatına, 2025 ve sonrası girişliler "2025" müfredatına tabidir. EE programında 3. ve 4. sınıfta "Seçmeli Kapsüller" (Elective Capsules) havuzundan dersler seçilir.
 11. İnşaat Mühendisliği için: 2016-2020 girişliler "2016" müfredatına, 2021-2024 girişliler "2021" müfredatına, 2025 ve sonrası girişliler "2025" müfredatına tabidir.
+12. Malzeme Bilimi ve Nanoteknoloji Mühendisliği (MSNE) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat).
 """
 
 
@@ -58,8 +59,10 @@ def _get_collection():
 MUFREDAT_RE = re.compile(r"\b(20\d\d)\b")
 DONEM_RE = re.compile(r"(\d+)\s*\.?\s*(?:dönem|yariyil|yarıyıl|semester)", re.IGNORECASE)
 YIL_SEZON_RE = re.compile(r"(\d+)\s*\.?\s*y[ıi]l.{0,15}?(g[üu]z|bahar)", re.IGNORECASE)
-# 1-4 arası tek hane ister; "2022 yılı" gibi giriş yıllarını yakalamasın
-SINIF_RE = re.compile(r"\b([1-4])\s*\.?\s*(s[ıi]n[ıi]f|y[ıi]l)\b", re.IGNORECASE)
+# 1-4 arası tek hane ister; "2022 yılı" gibi giriş yıllarını yakalamasın.
+# Türkçe çekim ekleri için trailing \b kaldırıldı: "2. yıl", "2. yılın", "2. senenin",
+# "2. sınıfın", "2. sınıfın dersleri" gibi varyantların hepsi eşleşir.
+SINIF_RE = re.compile(r"\b([1-4])\s*\.?\s*(s[ıi]n[ıi]f|y[ıi]l|sene)", re.IGNORECASE)
 LIST_TRIGGERS = [
     "hangi dersler", "dersleri listele", "tüm dersler", "tum dersler",
     "ders listesi", "neler var", "hangi ders", "dersler neler",
@@ -68,10 +71,12 @@ LIST_TRIGGERS = [
     "ders programı", "ders programi", "müfredat", "mufredat",
     "sınıfta", "sinifta", "dönemde", "donemde", "dönem dersleri",
     "donem dersleri", "sınıfın dersleri", "sinifin dersleri",
+    "sene dersleri", "senenin dersleri", "senede", "senesinde",
+    "yılında", "yilinda", "yılın dersleri", "yilin dersleri",
     "dersler hangileri", "dersler neler", "listele",
 ]
 
-LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025"}
+LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025"}
 
 
 def parse_intent(question: str, bolum: str) -> dict | None:
@@ -116,6 +121,9 @@ def parse_intent(question: str, bolum: str) -> dict | None:
                 mufredat_yili = "2021"
             elif year >= 2025:
                 mufredat_yili = "2025"
+        elif bolum == "malzeme":
+            # MSNE: tek aktif müfredat -> "2025" (tüm girişler)
+            mufredat_yili = "2025"
         else:
             # Bilgisayar Mühendisliği:
             # 2016-2020 -> "2016" | 2021-2022 -> "2021" | 2023-2024 -> "2023" | 2025+ -> "2025"
@@ -231,6 +239,7 @@ def _llm_answer(question: str, hits: list[dict], bolum: str) -> dict:
         "endustri": "Endüstri Mühendisliği",
         "elektrik": "Elektrik-Elektronik Mühendisliği",
         "insaat": "İnşaat Mühendisliği",
+        "malzeme": "Malzeme Bilimi ve Nanoteknoloji Mühendisliği",
     }.get(bolum, "Mühendislik")
     sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi)
     client = Groq()
@@ -328,6 +337,7 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar") -> dict:
         "endustri": "Endüstri Mühendisliği",
         "elektrik": "Elektrik-Elektronik Mühendisliği",
         "insaat": "İnşaat Mühendisliği",
+        "malzeme": "Malzeme Bilimi ve Nanoteknoloji Mühendisliği",
     }.get(bolum, "Mühendislik")
 
     if list_mode:

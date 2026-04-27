@@ -1,0 +1,58 @@
+Yıl,Dönem,Ders Kodu,Ders Adı,T,U,L,K,AKTS,Ön-Şart
+1,Güz,MSNE 101,Malzeme Bilimi ve Nanoteknolojiye Yolculuk,3,0,0,3,4,-
+1,Güz,PHYS 101,Fizik-I,3,2,0,4,5,-
+1,Güz,MATH 151,Matematik-I,5,0,0,5,6,-
+1,Güz,CHEM 101,Mühendisler için Kimya,3,2,0,4,5,-
+1,Güz,PHYS 107,Fizik-I Laboratuvarı,0,0,2,1,2,-
+1,Güz,TURK 101,Türk Dili-I,2,0,0,2,2,-
+1,Güz,ENG 101,İngilizce-I,4,0,0,4,4,-
+1,Güz,GLB 101,AGÜ Değerleri,3,0,0,3,4,-
+1,Bahar,MSNE 102,Bilgisayar Programlamaya Giriş,2,2,0,3,4,-
+1,Bahar,BIO 102,Biyoloji,4,0,0,4,4,-
+1,Bahar,PHYS 102,Fizik-II,3,2,0,4,5,-
+1,Bahar,MATH 152,Matematik-II,5,0,0,5,6,MATH 151
+1,Bahar,PHYS 108,Fizik-II Laboratuvarı,0,0,2,1,2,-
+1,Bahar,CP 100,Kariyer Planlama,1,0,0,1,1,-
+1,Bahar,TURK 102,Türk Dili-II,2,0,0,2,2,-
+1,Bahar,ENG 102,İngilizce-II,4,0,0,4,4,ENG 101
+1,Bahar,GLB 1XX,Seçmeli Küresel Sorunlar-I,3,0,0,3,4,-
+2,Güz,MSNE 201,Malzeme Bilimi ve Mühendisliği-I,3,2,0,4,5,-
+2,Güz,MSNE 203,Optik ve Modern Fizik,3,2,0,4,5,PHYS 102
+2,Güz,MSNE 205,Optik ve Modern Fizik Laboratuvarı,0,0,2,1,2,PHYS 102
+2,Güz,MSNE 207,Organik Malzeme Kimyası,3,2,0,4,5,CHEM 101
+2,Güz,MATH 203,Lineer Cebir,3,0,0,3,5,-
+2,Güz,HIST 201,Modern Türkiye Tarihi-I,2,0,0,2,2,-
+2,Güz,GLB 2XX,Seçmeli Küresel Sorunlar-II,3,0,0,3,4,-
+2,Bahar,MSNE 202,Malzeme Bilimi ve Mühendisliği-II,3,2,0,4,5,MSNE 201
+2,Bahar,MSNE 204,Malzeme Laboratuvarı,0,0,4,2,3,"CHEM101, MSNE 201"
+2,Bahar,MSNE 206,Kuantum Fiziği,4,0,0,4,5,MSNE 203
+2,Bahar,MSNE 208,Biyokimyaya Giriş,4,0,0,4,5,"CHEM 101, BIO 102"
+2,Bahar,MATH 205,Diferansiyel Denklemler,4,0,0,4,5,MATH 152
+2,Bahar,HIST 202,Modern Türkiye Tarihi-II,2,0,0,2,2,-
+2,Bahar,GLB 2XX,Seçmeli Küresel Sorunlar-III,3,0,0,3,4,-
+2,Bahar,MSNENX1,Teknik Olmayan Seçmeli-I,3,0,0,3,3,-
+3,Güz,MSNE 301,Katıhal Fiziğine Giriş,4,0,0,4,4,MSNE 206
+3,Güz,MSNE 303,Fizikokimya,4,0,0,4,4,CHEM 101
+3,Güz,MSNE 305,Nanoteknolojide Seramikler ve Camlar,3,0,0,3,4,-
+3,Güz,MSNE 307,Nanoteknolojide Biyomalzemeler,3,0,0,3,4,"CHEM 101, BIO 102"
+3,Güz,MSNE 309,Termodinamik ve Kinetik,4,0,0,4,4,-
+3,Güz,MSNETX1,Teknik Seçmeli-I,3,0,0,3,4,-
+3,Güz,GLB 3XX,Seçmeli Küresel Sorunlar-IV,3,0,0,3,4,-
+3,Güz,ECON 222,Mühendisler için Ekonomi,3,0,0,3,4,-
+3,Bahar,MSNE 302,Nanomalzemeler ve Aygıtlar,6,0,0,6,6,MSNE 202
+3,Bahar,MSNE 304,Taşınım Süreçleri,4,0,0,4,4,-
+3,Bahar,MSNE 306,Polimer Bilimi ve Nanoteknoloji,3,0,0,3,4,MSNE 207
+3,Bahar,MSNE 308,Metaller ve Metalik Nanomalzemeler,3,0,0,3,4,MSNE 202
+3,Bahar,MSNE 310,İstatistik ve Deney Tasarımı,3,0,0,3,3,-
+3,Bahar,MSNETX2,Teknik Seçmeli-II,3,0,0,3,4,-
+3,Bahar,MSNENX2,Teknik Olmayan Seçmeli-II,3,0,0,3,3,-
+4,Güz,MSNE 401,Bitirme Projesi,0,2,0,1,4,Onay + 160 AKTS
+4,Güz,MSNE 403,Yaz Stajı,0,2,0,1,5,İkinci yılı tamamlamak
+4,Güz,MSNE 405,İleri Üretim ve Karakterizasyon Lab.,0,0,4,2,4,MSNE 302
+4,Güz,MSNETX3,Teknik Seçmeli-III,3,0,0,3,4,-
+4,Güz,MSNETX3,Teknik Seçmeli-III,3,0,0,3,4,-
+4,Güz,MSNETX3,Teknik Seçmeli-III,3,0,0,3,4,-
+4,Güz,MSNETX3,Teknik Seçmeli-III,3,0,0,3,4,-
+4,Güz,OHS 401,İş Sağlığı ve Güvenliği-I,2,0,0,2,1,-
+4,Bahar,MSNEIX,Seçmeli Uzun Dönem Staj,4,20,0,14,29,-
+4,Bahar,OHS 402,İş Sağlığı ve Güvenliği-II,2,0,0,2,1,-

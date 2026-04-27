@@ -9,6 +9,7 @@ Müfredat, ders içerikleri, staj yönergesi ve internship handbook sorularını
 - Endüstri Mühendisliği
 - Elektrik-Elektronik Mühendisliği
 - İnşaat Mühendisliği
+- Malzeme Bilimi ve Nanoteknoloji Mühendisliği
 
 ## Pipeline
 1. `src/ingest.py` (+ `ingest_me.py`, `ingest_elektrik.py`, `ingest_endustri.py`, `ingest_insaat.py`, `ingest_glb.py`) — ham dokümanları (docx, pdf, csv, xlsx) yapılandırılmış chunk'lara çevirir → `data/processed/*.jsonl`
@@ -41,6 +42,7 @@ python src/ingest_me.py
 python src/ingest_elektrik.py
 python src/ingest_endustri.py
 python src/ingest_insaat.py
+python src/ingest_malzeme.py
 python src/ingest_glb.py
 
 # 2) Embed + index (chunks değiştiğinde — tüm jsonl dosyalarını birden indeksler)
@@ -59,6 +61,7 @@ streamlit run app.py
 - **Endüstri:** IE*_Syllabus.docx, IE_STAJ_PROGRAMI_KILAVUZU, ie_*_temiz.csv
 - **Elektrik:** AGU-EE-Curriculum-2019/2021.pdf, EE_staj_yonergesi_2019.pdf, EE_Capsule_Rules_TR.pdf, ee_*_temiz.csv
 - **İnşaat:** CE_Curriculum_2016/2021/2025.pdf, CE_Course_Catalogue.pdf, CE_Staj_Uygulamali_Egitim_Yonergesi.pdf, ce_*_temiz.csv
+- **Malzeme:** malzeme_mufredat.csv (Google Sheets'ten çekildi)
 
 ## Chunk İstatistikleri
 | Bölüm | Chunk Sayısı |
@@ -68,5 +71,6 @@ streamlit run app.py
 | Endüstri (`chunks_endustri.jsonl`) | 310 |
 | Elektrik (`chunks_elektrik.jsonl`) | 224 |
 | İnşaat (`chunks_insaat.jsonl`) | 277 |
+| Malzeme/MSNE (`chunks_malzeme.jsonl`) | 67 |
 | Genel/Ortak Seçmeli (`chunks_glb.jsonl`) | 25 |
-| **TOPLAM** | **1380** |
+| **TOPLAM** | **1447** |

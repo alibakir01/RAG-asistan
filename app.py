@@ -27,7 +27,7 @@ with st.sidebar:
     
     bolum_secim = st.selectbox(
         "📚 **Bölüm Seçimi**",
-        ["Bilgisayar Mühendisliği", "Makine Mühendisliği", "Endüstri Mühendisliği", "Elektrik-Elektronik Mühendisliği", "İnşaat Mühendisliği"]
+        ["Bilgisayar Mühendisliği", "Makine Mühendisliği", "Endüstri Mühendisliği", "Elektrik-Elektronik Mühendisliği", "İnşaat Mühendisliği", "Malzeme Bilimi ve Nanoteknoloji Mühendisliği"]
     )
     BOLUM_ID_MAP = {
         "Bilgisayar Mühendisliği": "bilgisayar",
@@ -35,6 +35,7 @@ with st.sidebar:
         "Endüstri Mühendisliği": "endustri",
         "Elektrik-Elektronik Mühendisliği": "elektrik",
         "İnşaat Mühendisliği": "insaat",
+        "Malzeme Bilimi ve Nanoteknoloji Mühendisliği": "malzeme",
     }
     bolum_id = BOLUM_ID_MAP[bolum_secim]
     

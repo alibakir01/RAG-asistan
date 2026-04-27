@@ -1,0 +1,26 @@
+,Teknik Seçmeli I (3. Yıl Güz),
+Kod,Ders Adı,Ön-Şart
+MSNE 321,Kompleks Analiz ve Uygulamaları,MATH 152
+MSNE 323,Nanoteknoloji Tabanlı Ambalaj Sistemleri,-
+MSNE 325,2D Malzemeler,-
+,,
+,Teknik Seçmeli II (3. Yıl Bahar),
+Kod,Ders Adı,Ön-Şart
+MSNE 322,Nanoteknolojide Yumuşak Malzemeler,-
+MSNE 324,"Malzemelerin Elektrik, Optik ve Manyetik Özellikleri",MSNE 203
+MSNE 326,Nanobiyoteknoloji,"CHEM 101, BIO 102"
+,,
+,Teknik Seçmeli III (4. Yıl Güz),
+Kod,Ders Adı,Ön-Şart
+MSNE 421,Kuantum Nanoyapılar,MSNE 206
+MSNE 423,Organik Elektroniğe Giriş,MSNE 207
+MSNE 425,Hesaplamalı Malzeme Bilimi,-
+MSNE 427,Elektromanyetik Teori ve Nanoteknolojide Uygulamaları,PHYS 102
+MSNE 429,Tarım ve Gıda İşlemede Nanoteknoloji,-
+MSNE 431,Yarıiletken Malzemeler ve Aygıtlar,MSNE 301
+MSNE 433,Doku Mühendisliğinde Nanomalzemeler,MSNE 208
+,,
+,Seçmeli Uzun Dönem Staj (4. Yıl Bahar),
+Kod,Ders Adı,Ön-Şart
+MSNE 402,Akademik Deneyim,Onay
+MSNE 404,İşyeri Deneyimi,Onay
