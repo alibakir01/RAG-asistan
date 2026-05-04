@@ -118,9 +118,13 @@ def _load_all_chunks() -> tuple[tuple, ...]:
 
 @lru_cache(maxsize=8)
 def _get_bm25(bolum: str):
-    """Belirli bölüm için BM25 indexi inşa et (bellekte cache'lenir)."""
+    """Belirli bölüm için BM25 indexi inşa et (bellekte cache'lenir).
+    Ortak chunk'lar (bolum='ortak' — örn. akademik takvim) her bölüme dahildir."""
     all_chunks = _load_all_chunks()
-    filtered = [c for c in all_chunks if c.get("metadata", {}).get("bolum") == bolum]
+    filtered = [
+        c for c in all_chunks
+        if c.get("metadata", {}).get("bolum") in (bolum, "ortak")
+    ]
     docs_tokens = [_tokenize(c["text"]) for c in filtered]
     if not docs_tokens:
         return None, []
@@ -364,12 +368,16 @@ def _expand_query_with_history(question: str, history: list[dict] | None) -> str
 
 def vector_search(question: str, bolum: str, k: int = HYBRID_VECTOR_K,
                   history: list[dict] | None = None) -> list[dict]:
-    """Saf semantic vector retrieval (Chroma + e5)."""
+    """Saf semantic vector retrieval (Chroma + e5).
+    Ortak chunk'lar (bolum='ortak') her bölüme dahil edilir."""
     model = _get_embedder()
     col = _get_collection()
     expanded = _expand_query_with_history(question, history)
     emb = model.encode([f"query: {expanded}"], normalize_embeddings=True).tolist()
-    r = col.query(query_embeddings=emb, n_results=k, where={"bolum": bolum})
+    r = col.query(
+        query_embeddings=emb, n_results=k,
+        where={"bolum": {"$in": [bolum, "ortak"]}},
+    )
     hits = []
     for doc, md, dist in zip(r["documents"][0], r["metadatas"][0], r["distances"][0]):
         hits.append({"text": doc, "metadata": md, "distance": dist})
