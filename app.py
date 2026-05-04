@@ -7,9 +7,96 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import base64
+import json
+import time
+from datetime import datetime
+from pathlib import Path
+
 import streamlit as st
 import streamlit.components.v1 as components
-from src.rag import answer
+from src.rag import BOLUM_ADI_MAP, answer_stream, detect_bolum
+
+
+# ============================ MODEL WARMUP ============================
+# Embedder + reranker + BM25 indeksleri arka planda preload — ilk sorguda
+# 5-15 saniye bekleme yerine kullanıcı yazarken paralel yüklensin.
+@st.cache_resource(show_spinner=False)
+def _warmup_models():
+    import threading
+    from src.rag import _get_embedder, _get_reranker, _get_bm25, BOLUM_ADI_MAP
+
+    def _load():
+        try:
+            _get_embedder()
+            _get_reranker()
+            for bolum in BOLUM_ADI_MAP.keys():
+                _get_bm25(bolum)
+        except Exception:
+            pass  # warmup hatası UI'yı durdurmasın
+
+    t = threading.Thread(target=_load, daemon=True)
+    t.start()
+    return True
+
+
+_warmup_models()
+
+# ============================ LOGO ============================
+_LOGO_PATH = Path(__file__).parent / "assets" / "agu_logo.png"
+try:
+    _LOGO_B64 = base64.b64encode(_LOGO_PATH.read_bytes()).decode("ascii")
+    LOGO_DATA_URI = f"data:image/png;base64,{_LOGO_B64}"
+except Exception:
+    LOGO_DATA_URI = ""
+
+
+# ============================ FEEDBACK LOG ============================
+FEEDBACK_PATH = Path(__file__).parent / "data" / "feedback.jsonl"
+
+
+def log_feedback(message_id: str, rating: str, question: str, answer_text: str,
+                 bolum: str, hits: list[dict], comment: str = "") -> None:
+    """Kullanıcı 👍/👎 feedback'ini JSONL'e ekle."""
+    FEEDBACK_PATH.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "ts": datetime.now().isoformat(timespec="seconds"),
+        "message_id": message_id,
+        "rating": rating,  # "up" | "down"
+        "bolum": bolum,
+        "question": question,
+        "answer": answer_text,
+        "comment": comment,
+        "hits": [
+            {"id": h.get("metadata", {}).get("ders_kodu") or h.get("metadata", {}).get("madde_no"),
+             "tip": h.get("metadata", {}).get("tip"),
+             "kaynak": h.get("metadata", {}).get("kaynak"),
+             "distance": h.get("distance")}
+            for h in (hits or [])[:8]
+        ],
+    }
+    with FEEDBACK_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+# ============================ SESSION-LEVEL CACHE ============================
+# Streaming + cache uyumu: aynı (soru, bölüm, k, history) için sonuç
+# session boyunca yeniden hesaplanmasın. LLM cevabı stream'lendikten sonra
+# tam metin + hits buraya kaydedilir.
+def _cache_key(q: str, k: int, bolum: str, history_json: str) -> str:
+    return f"{bolum}|{k}|{hash(history_json)}|{q}"
+
+
+def get_cached(q: str, k: int, bolum: str, history_json: str) -> dict | None:
+    return st.session_state.setdefault("_qa_cache", {}).get(
+        _cache_key(q, k, bolum, history_json)
+    )
+
+
+def set_cached(q: str, k: int, bolum: str, history_json: str, payload: dict) -> None:
+    st.session_state.setdefault("_qa_cache", {})[
+        _cache_key(q, k, bolum, history_json)
+    ] = payload
 
 st.set_page_config(
     page_title="AGÜ Öğrenci Asistanı",
@@ -116,6 +203,13 @@ st.markdown(
         background-clip: text;
         filter: drop-shadow(0 4px 14px rgba(194,24,91,0.4));
         margin-bottom: 4px;
+    }
+    [data-testid="stSidebar"] .sidebar-logo .agu-logo {
+        display: block;
+        width: 64px;
+        height: auto;
+        margin: 0 auto 8px auto;
+        filter: drop-shadow(0 6px 18px rgba(194, 24, 91, 0.35));
     }
     [data-testid="stSidebar"] .sidebar-logo h2 {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -314,6 +408,65 @@ st.markdown(
         line-height: 1;
     }
     .info-card .bolum-emoji { margin: 0 4px 0 0; font-size: 0.95em; }
+
+    /* ============= Feedback (👍/👎) butonları — outline SVG ikonlar ============= */
+    /* Kolonları yapıştır */
+    [data-testid="stChatMessage"] [data-testid="stHorizontalBlock"] {
+        gap: 0 !important;
+    }
+    [data-testid="stChatMessage"] [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+    }
+    /* Buton: 30x30 kare, transparan, çerçevesiz */
+    [data-testid="stChatMessage"] [data-testid="stHorizontalBlock"] .stButton button {
+        width: 30px !important;
+        height: 30px !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 2px !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        font-size: 0 !important;
+        color: transparent !important;
+        line-height: 0 !important;
+        position: relative !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 20px 20px !important;
+        transition: background-image 0.18s ease, transform 0.18s ease, filter 0.18s ease !important;
+    }
+    /* Tüm iç içeriği gizle (emoji p, container div, vs.) */
+    [data-testid="stChatMessage"] [data-testid="stHorizontalBlock"] .stButton button * {
+        display: none !important;
+    }
+    /* 1. kolon — Thumbs UP (default beyaz) */
+    [data-testid="stChatMessage"] [data-testid="stHorizontalBlock"]
+        [data-testid="stColumn"]:nth-of-type(1) .stButton button {
+        background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffffd9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10v12'/%3E%3Cpath d='M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z'/%3E%3C/svg%3E") !important;
+    }
+    /* 1. kolon hover — yeşil */
+    [data-testid="stChatMessage"] [data-testid="stHorizontalBlock"]
+        [data-testid="stColumn"]:nth-of-type(1) .stButton button:hover {
+        background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232ecc71' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10v12'/%3E%3Cpath d='M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z'/%3E%3C/svg%3E") !important;
+        transform: scale(1.18) !important;
+    }
+    /* 2. kolon — Thumbs DOWN (default beyaz) */
+    [data-testid="stChatMessage"] [data-testid="stHorizontalBlock"]
+        [data-testid="stColumn"]:nth-of-type(2) .stButton button {
+        background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffffd9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 14V2'/%3E%3Cpath d='M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z'/%3E%3C/svg%3E") !important;
+    }
+    /* 2. kolon hover — kırmızı */
+    [data-testid="stChatMessage"] [data-testid="stHorizontalBlock"]
+        [data-testid="stColumn"]:nth-of-type(2) .stButton button:hover {
+        background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e74c3c' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 14V2'/%3E%3Cpath d='M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z'/%3E%3C/svg%3E") !important;
+        transform: scale(1.18) !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -322,9 +475,9 @@ st.markdown(
 # ============================ SIDEBAR ============================
 with st.sidebar:
     st.markdown(
-        """
+        f"""
         <div class="sidebar-logo">
-            <div class="emoji">🎓</div>
+            <img src="{LOGO_DATA_URI}" alt="AGÜ" class="agu-logo" />
             <h2>AGÜ Asistanı</h2>
             <span>Yapay Zeka Destekli Rehber</span>
         </div>
@@ -390,6 +543,12 @@ with st.sidebar:
     bolum_id = BOLUM_ID_MAP[bolum_secim]
     bolum_icon = BOLUM_SVG[bolum_id]
 
+    # Bölüm değiştiyse konuşma geçmişini sıfırla — farklı bölümün bağlamı karışmasın.
+    if st.session_state.get("_active_bolum") != bolum_id:
+        st.session_state["_active_bolum"] = bolum_id
+        st.session_state["messages"] = []
+        st.session_state["_qa_cache"] = {}
+
     st.markdown(
         f"""
         <div class="info-card">
@@ -453,6 +612,7 @@ with st.sidebar:
     st.divider()
     if st.button("🗑️ Sohbeti Temizle", use_container_width=True):
         st.session_state["messages"] = []
+        st.session_state["_qa_cache"] = {}
         st.rerun()
 
     st.markdown(
@@ -535,19 +695,72 @@ if not st.session_state["messages"]:
                 st.rerun()
 
 # ============================ MESAJ GEÇMİŞİ ============================
-for m in st.session_state["messages"]:
+def _render_sources(hits: list[dict], key_prefix: str):
+    if not hits:
+        return
+    with st.expander("🔎 Kullanılan kaynaklar"):
+        for i, h in enumerate(hits, 1):
+            md = h.get("metadata", {})
+            dist = h.get("distance", 0.0) or 0.0
+            st.markdown(
+                f"**[{i}]** `{md.get('tip')}` — {md.get('kaynak','')} — "
+                f"dist={dist:.3f}"
+            )
+            st.caption(h["text"][:400] + ("..." if len(h["text"]) > 400 else ""))
+
+
+def _render_rating(msg_idx: int, m: dict):
+    """Asistan mesajı altına 👍/👎 + opsiyonel yorum kutusu."""
+    rating = m.get("rating")
+    msg_id = m.get("id", f"msg-{msg_idx}")
+
+    if rating:
+        st.caption(
+            f"{'👍' if rating == 'up' else '👎'} Geri bildirimin için teşekkürler."
+        )
+        return
+
+    cols = st.columns([1, 1, 8])
+    if cols[0].button("👍", key=f"up-{msg_id}", help="Bu cevap işime yaradı"):
+        m["rating"] = "up"
+        log_feedback(
+            message_id=msg_id, rating="up",
+            question=m.get("question", ""),
+            answer_text=m.get("content", ""),
+            bolum=m.get("bolum", ""),
+            hits=m.get("hits", []),
+        )
+        st.rerun()
+    if cols[1].button("👎", key=f"down-{msg_id}", help="Bu cevap yetersiz / yanlış"):
+        st.session_state[f"_pending_down_{msg_id}"] = True
+
+    if st.session_state.get(f"_pending_down_{msg_id}"):
+        comment = st.text_input(
+            "Neyin eksik/yanlış olduğunu yazar mısın? (opsiyonel)",
+            key=f"comment-{msg_id}",
+            placeholder="Örn: ön şartı yanlış söyledi",
+        )
+        if st.button("Gönder", key=f"send-{msg_id}", type="primary"):
+            m["rating"] = "down"
+            log_feedback(
+                message_id=msg_id, rating="down",
+                question=m.get("question", ""),
+                answer_text=m.get("content", ""),
+                bolum=m.get("bolum", ""),
+                hits=m.get("hits", []),
+                comment=comment or "",
+            )
+            st.session_state.pop(f"_pending_down_{msg_id}", None)
+            st.rerun()
+
+
+for idx, m in enumerate(st.session_state["messages"]):
     avatar = "🧑‍🎓" if m["role"] == "user" else "🎓"
     with st.chat_message(m["role"], avatar=avatar):
         st.markdown(m["content"])
-        if m.get("hits"):
-            with st.expander("🔎 Kullanılan kaynaklar"):
-                for i, h in enumerate(m["hits"], 1):
-                    md = h["metadata"]
-                    st.markdown(
-                        f"**[{i}]** `{md.get('tip')}` — {md.get('kaynak','')} — "
-                        f"dist={h['distance']:.3f}"
-                    )
-                    st.caption(h["text"][:400] + ("..." if len(h["text"]) > 400 else ""))
+        if m["role"] == "assistant":
+            _render_sources(m.get("hits", []), key_prefix=f"hist-{idx}")
+            _render_rating(idx, m)
 
 # ============================ CHAT INPUT ============================
 q = st.chat_input("Örn: 2023 girişliyim 3. dönem hangi dersler var?")
@@ -555,23 +768,64 @@ if not q and "pending_q" in st.session_state:
     q = st.session_state.pop("pending_q")
 
 if q:
+    # Otomatik bölüm tespiti — soruda spesifik anahtar kelime varsa bolum'u override et
+    detected = detect_bolum(q)
+    effective_bolum = detected if detected and detected != bolum_id else bolum_id
+    auto_switched = detected is not None and detected != bolum_id
+
     st.session_state["messages"].append({"role": "user", "content": q})
     with st.chat_message("user", avatar="🧑‍🎓"):
         st.markdown(q)
+        if auto_switched:
+            st.info(
+                f"🔀 Bu soru **{BOLUM_ADI_MAP[detected]}** ile ilgili görünüyor — "
+                f"cevabı o bölümün kaynaklarından getiriyorum.",
+                icon="ℹ️",
+            )
+
+    # Geçmişi LLM için hazırla
+    history_for_rag = [
+        {"role": m["role"], "content": m["content"]}
+        for m in st.session_state["messages"][:-1]
+        if m["role"] in ("user", "assistant")
+    ]
+    history_json = json.dumps(history_for_rag, ensure_ascii=False) if history_for_rag else ""
+
+    msg_id = f"msg-{int(time.time() * 1000)}"
+
     with st.chat_message("assistant", avatar="🎓"):
-        with st.spinner("✨ Düşünüyorum..."):
-            try:
-                result = answer(q, k=top_k, bolum=bolum_id)
-                st.markdown(result["answer"])
-                st.session_state["messages"].append(
-                    {"role": "assistant", "content": result["answer"], "hits": result["hits"]}
-                )
-                with st.expander("🔎 Kullanılan kaynaklar"):
-                    for i, h in enumerate(result["hits"], 1):
-                        md = h["metadata"]
-                        st.markdown(
-                            f"**[{i}]** `{md.get('tip')}` — {md.get('kaynak','')} — dist={h['distance']:.3f}"
-                        )
-                        st.caption(h["text"][:400] + ("..." if len(h["text"]) > 400 else ""))
-            except Exception as e:
-                st.error(f"⚠️ Hata: {e}")
+        try:
+            cached = get_cached(q, top_k, effective_bolum, history_json)
+            if cached:
+                # Cache hit — anında render
+                st.markdown(cached["answer"])
+                final_text = cached["answer"]
+                final_hits = cached["hits"]
+            else:
+                with st.spinner("✨ Düşünüyorum..."):
+                    result = answer_stream(q, k=top_k, bolum=effective_bolum, history=history_for_rag)
+                final_hits = result["hits"]
+                if result["mode"] == "llm":
+                    # Token-by-token render
+                    final_text = st.write_stream(result["token_iter"])
+                else:
+                    # list / compare — deterministik tam metin
+                    st.markdown(result["text"])
+                    final_text = result["text"]
+                set_cached(q, top_k, effective_bolum, history_json, {
+                    "answer": final_text, "hits": final_hits,
+                })
+
+            # Mesajı kaydet (rating UI için ek alanlar dahil)
+            st.session_state["messages"].append({
+                "role": "assistant",
+                "content": final_text,
+                "hits": final_hits,
+                "id": msg_id,
+                "question": q,
+                "bolum": effective_bolum,
+            })
+            _render_sources(final_hits, key_prefix=f"new-{msg_id}")
+            _render_rating(len(st.session_state["messages"]) - 1, st.session_state["messages"][-1])
+        except Exception as e:
+            st.error(f"⚠️ Hata: {e}")

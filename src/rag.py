@@ -13,16 +13,29 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
+import json
+
 import chromadb
 from groq import Groq
-from sentence_transformers import SentenceTransformer
+from rank_bm25 import BM25Okapi
+from sentence_transformers import CrossEncoder, SentenceTransformer
 
 ROOT = Path(__file__).resolve().parents[1]
 CHROMA_DIR = ROOT / "data" / "chroma"
+PROCESSED_DIR = ROOT / "data" / "processed"
 MODEL_NAME = "intfloat/multilingual-e5-large"
 COLLECTION = "agu_comp"
 LLM_MODEL = "llama-3.3-70b-versatile"  # Groq'ta bedava, Türkçesi iyi
 TOP_K = 8
+
+# Hibrit retrieval ayarları
+HYBRID_VECTOR_K = 20   # vektör adayları
+HYBRID_BM25_K = 20     # BM25 adayları
+RRF_C = 60             # Reciprocal Rank Fusion sabiti
+
+# Reranker ayarları
+RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"  # multilingual, Türkçe destekli (~1.1GB)
+RERANK_CANDIDATES = 15   # hibrit sonrası kaç adayı reranker'a sokalım (CPU'da hız için 15)
 
 SYSTEM_PROMPT = """Sen Abdullah Gül Üniversitesi {bolum_adi} bölümü için bir yardımcı asistansın.
 Öğrencilere müfredat, dersler, staj yönergesi gibi konularda Türkçe yardım edersin.
@@ -49,9 +62,94 @@ def _get_embedder() -> SentenceTransformer:
 
 
 @lru_cache(maxsize=1)
+def _get_reranker() -> CrossEncoder:
+    """Cross-encoder reranker (lazy load — ilk sorguda yaklaşık 200MB model indirir)."""
+    return CrossEncoder(RERANKER_MODEL, max_length=512)
+
+
+def rerank(question: str, candidates: list[dict], top_k: int) -> list[dict]:
+    """Cross-encoder ile (query, document) çiftlerini puanla, top_k al."""
+    if not candidates:
+        return []
+    if len(candidates) <= top_k:
+        # Yine de skor ekleyelim ki UI tutarlı olsun
+        pass
+    reranker = _get_reranker()
+    pairs = [[question, c["text"]] for c in candidates]
+    scores = reranker.predict(pairs, show_progress_bar=False)
+    scored = []
+    for c, s in zip(candidates, scores):
+        c2 = dict(c)
+        c2["_rerank_score"] = float(s)
+        scored.append(c2)
+    scored.sort(key=lambda h: h["_rerank_score"], reverse=True)
+    return scored[:top_k]
+
+
+@lru_cache(maxsize=1)
 def _get_collection():
     client = chromadb.PersistentClient(path=str(CHROMA_DIR))
     return client.get_collection(COLLECTION)
+
+
+# ----------------------------- BM25 Index -----------------------------
+
+# Türkçe için basit tokenizer: küçült + alfanümerik tokenler.
+_TOKEN_RE = re.compile(r"[A-Za-zÇĞİıÖŞÜçğöşü0-9]+")
+
+
+def _tokenize(text: str) -> list[str]:
+    if not text:
+        return []
+    return _TOKEN_RE.findall(text.lower())
+
+
+@lru_cache(maxsize=1)
+def _load_all_chunks() -> tuple[tuple, ...]:
+    """Tüm processed/*.jsonl chunk'larını belleğe al. Tuple döndürür ki lru_cache mutlu olsun."""
+    chunks: list[dict] = []
+    for jsonl_file in sorted(PROCESSED_DIR.glob("*.jsonl")):
+        with jsonl_file.open(encoding="utf-8") as f:
+            for line in f:
+                ch = json.loads(line)
+                chunks.append(ch)
+    return tuple(chunks)
+
+
+@lru_cache(maxsize=8)
+def _get_bm25(bolum: str):
+    """Belirli bölüm için BM25 indexi inşa et (bellekte cache'lenir)."""
+    all_chunks = _load_all_chunks()
+    filtered = [c for c in all_chunks if c.get("metadata", {}).get("bolum") == bolum]
+    docs_tokens = [_tokenize(c["text"]) for c in filtered]
+    if not docs_tokens:
+        return None, []
+    bm25 = BM25Okapi(docs_tokens)
+    return bm25, filtered
+
+
+def bm25_search(question: str, bolum: str, k: int = HYBRID_BM25_K) -> list[dict]:
+    bm25, chunks = _get_bm25(bolum)
+    if bm25 is None or not chunks:
+        return []
+    tokens = _tokenize(question)
+    if not tokens:
+        return []
+    scores = bm25.get_scores(tokens)
+    # En yüksek skorlu k'yı sırala
+    top_idx = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:k]
+    hits = []
+    for i in top_idx:
+        if scores[i] <= 0:
+            continue
+        c = chunks[i]
+        hits.append({
+            "text": c["text"],
+            "metadata": c["metadata"],
+            "distance": 1.0 / (1.0 + scores[i]),  # uyumluluk için "distance benzeri"
+            "_bm25_score": float(scores[i]),
+        })
+    return hits
 
 
 # ----------------------------- Intent / Router -----------------------------
@@ -77,6 +175,51 @@ LIST_TRIGGERS = [
 ]
 
 LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025"}
+
+
+# --- Otomatik bölüm tespiti ---
+# Anahtar kelime / ders kodu eşleşmeleri. Eşleşme bulunursa bolum override edilir.
+BOLUM_KEYWORDS: dict[str, list[str]] = {
+    "malzeme": [
+        "msne", "malzeme bilimi", "malzeme müh", "malzeme muh",
+        "nanoteknoloji", "nano teknoloji",
+    ],
+    "bilgisayar": [
+        "comp ", "bilgisayar müh", "bilgisayar muh", "yazılım müh",
+        "yazilim muh", "computer eng",
+    ],
+    "makine": [
+        "me ", "makine müh", "makine muh", "mechanical eng", "mech eng",
+    ],
+    "endustri": [
+        "ie ", "endüstri", "endustri", "industrial eng",
+    ],
+    "elektrik": [
+        "ee ", "elektrik müh", "elektrik muh", "elektronik müh",
+        "elektronik muh", "electrical eng",
+    ],
+    "insaat": [
+        "ce ", "inşaat", "insaat", "civil eng",
+    ],
+}
+
+
+def detect_bolum(question: str) -> str | None:
+    """Soruda bir bölüme spesifik anahtar kelime varsa bolum_id döndür, yoksa None."""
+    q = question.lower()
+    # 1) Ders kodu prefix'i (boşluklu / boşluksuz): MSNE 302, MSNE302, COMP101 vb.
+    code_prefixes = {
+        "MSNE": "malzeme", "COMP": "bilgisayar", "ME": "makine",
+        "IE": "endustri", "EE": "elektrik", "CE": "insaat",
+    }
+    code_match = re.search(r"\b(MSNE|COMP|ME|IE|EE|CE)\s*\d{2,4}\b", question.upper())
+    if code_match:
+        return code_prefixes[code_match.group(1)]
+    # 2) İsim tabanlı anahtar kelimeler
+    for bolum, kws in BOLUM_KEYWORDS.items():
+        if any(kw in q for kw in kws):
+            return bolum
+    return None
 
 
 def parse_intent(question: str, bolum: str) -> dict | None:
@@ -208,15 +351,84 @@ def fetch_semester_courses(mufredat_yili: str, donems: list[int], bolum: str) ->
     return hits
 
 
-def retrieve(question: str, k: int = TOP_K, bolum: str = "bilgisayar") -> list[dict]:
+def _expand_query_with_history(question: str, history: list[dict] | None) -> str:
+    """Takip sorusu kısa olabilir ('peki ön şartı?'). Retrieval kalitesi için
+    son birkaç user mesajını mevcut soruya iliştir."""
+    if not history:
+        return question
+    prev_users = [m["content"] for m in history if m.get("role") == "user"][-2:]
+    if not prev_users:
+        return question
+    return " ".join(prev_users + [question])
+
+
+def vector_search(question: str, bolum: str, k: int = HYBRID_VECTOR_K,
+                  history: list[dict] | None = None) -> list[dict]:
+    """Saf semantic vector retrieval (Chroma + e5)."""
     model = _get_embedder()
     col = _get_collection()
-    emb = model.encode([f"query: {question}"], normalize_embeddings=True).tolist()
+    expanded = _expand_query_with_history(question, history)
+    emb = model.encode([f"query: {expanded}"], normalize_embeddings=True).tolist()
     r = col.query(query_embeddings=emb, n_results=k, where={"bolum": bolum})
     hits = []
     for doc, md, dist in zip(r["documents"][0], r["metadatas"][0], r["distances"][0]):
         hits.append({"text": doc, "metadata": md, "distance": dist})
     return hits
+
+
+def _rrf_fuse(vector_hits: list[dict], bm25_hits: list[dict], k: int,
+              c: int = RRF_C) -> list[dict]:
+    """Reciprocal Rank Fusion: 1/(c+rank) ile iki listeyi birleştir.
+    Aynı text içeren hit'ler aynı sayılır."""
+    def _key(h: dict) -> str:
+        md = h.get("metadata", {})
+        return md.get("ders_kodu", "") + "|" + h.get("text", "")[:120]
+
+    scores: dict[str, float] = {}
+    by_key: dict[str, dict] = {}
+
+    for rank, h in enumerate(vector_hits, start=1):
+        key = _key(h)
+        scores[key] = scores.get(key, 0.0) + 1.0 / (c + rank)
+        by_key.setdefault(key, h)
+    for rank, h in enumerate(bm25_hits, start=1):
+        key = _key(h)
+        scores[key] = scores.get(key, 0.0) + 1.0 / (c + rank)
+        by_key.setdefault(key, h)
+
+    sorted_keys = sorted(scores.keys(), key=lambda kk: scores[kk], reverse=True)
+    fused = []
+    for kk in sorted_keys[:k]:
+        h = dict(by_key[kk])
+        h["_rrf_score"] = scores[kk]
+        fused.append(h)
+    return fused
+
+
+def retrieve(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
+             history: list[dict] | None = None,
+             use_reranker: bool = True) -> list[dict]:
+    """Üç aşamalı retrieval:
+       1) Vektör (e5)  + BM25 → RRF ile RERANK_CANDIDATES (≈30) aday
+       2) Cross-encoder reranker (bge-reranker-base) ile yeniden sırala
+       3) En iyi k'yı döndür
+    """
+    vec = vector_search(question, bolum, k=HYBRID_VECTOR_K, history=history)
+    # BM25 için orijinal soru daha doğru — query expansion sadece vektörde fayda sağlar
+    bm = bm25_search(question, bolum, k=HYBRID_BM25_K)
+
+    if not bm and not vec:
+        return []
+    if not bm:
+        candidates = vec[:RERANK_CANDIDATES]
+    elif not vec:
+        candidates = bm[:RERANK_CANDIDATES]
+    else:
+        candidates = _rrf_fuse(vec, bm, k=RERANK_CANDIDATES)
+
+    if not use_reranker or len(candidates) <= 1:
+        return candidates[:k]
+    return rerank(question, candidates, top_k=k)
 
 
 def format_context(hits: list[dict]) -> str:
@@ -230,18 +442,39 @@ def format_context(hits: list[dict]) -> str:
     return "\n\n---\n\n".join(blocks)
 
 
-def _llm_answer(question: str, hits: list[dict], bolum: str) -> dict:
+BOLUM_ADI_MAP = {
+    "bilgisayar": "Bilgisayar Mühendisliği",
+    "makine": "Makine Mühendisliği",
+    "endustri": "Endüstri Mühendisliği",
+    "elektrik": "Elektrik-Elektronik Mühendisliği",
+    "insaat": "İnşaat Mühendisliği",
+    "malzeme": "Malzeme Bilimi ve Nanoteknoloji Mühendisliği",
+}
+
+# Konuşma geçmişinden LLM'e geçirilecek maksimum mesaj sayısı (son N mesaj)
+MAX_HISTORY_MESSAGES = 6
+
+
+def _build_history_messages(history: list[dict] | None) -> list[dict]:
+    """app.py session_state.messages -> Groq messages formatı (sadece role+content)."""
+    if not history:
+        return []
+    msgs = []
+    for m in history[-MAX_HISTORY_MESSAGES:]:
+        role = m.get("role")
+        content = m.get("content", "")
+        if role in ("user", "assistant") and content:
+            msgs.append({"role": role, "content": content})
+    return msgs
+
+
+def _llm_answer(question: str, hits: list[dict], bolum: str,
+                history: list[dict] | None = None) -> dict:
     """Standart LLM cevabı — ders detay/ön şart sorularında kullanılır."""
     context = format_context(hits)
-    bolum_adi = {
-        "bilgisayar": "Bilgisayar Mühendisliği",
-        "makine": "Makine Mühendisliği",
-        "endustri": "Endüstri Mühendisliği",
-        "elektrik": "Elektrik-Elektronik Mühendisliği",
-        "insaat": "İnşaat Mühendisliği",
-        "malzeme": "Malzeme Bilimi ve Nanoteknoloji Mühendisliği",
-    }.get(bolum, "Mühendislik")
+    bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
     sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi)
+    history_msgs = _build_history_messages(history)
     client = Groq()
     resp = client.chat.completions.create(
         model=LLM_MODEL,
@@ -249,12 +482,15 @@ def _llm_answer(question: str, hits: list[dict], bolum: str) -> dict:
         temperature=0.2,
         messages=[
             {"role": "system", "content": sys_prompt},
+            *history_msgs,
             {
                 "role": "user",
                 "content": (
                     f"BAĞLAM:\n{context}\n\n"
                     f"SORU: {question}\n\n"
                     "Yukarıdaki bağlamı kullanarak Türkçe cevap ver. "
+                    "Önceki konuşma akışını dikkate al — kullanıcı kısa takip soruları sorabilir "
+                    "(örn. 'peki ön şartı ne?'). "
                     "Eğer ön şart soruluyorsa BAĞLAM'daki 'Ön şart:' alanına bak. "
                     "Kaynak belirt."
                 ),
@@ -301,7 +537,357 @@ def _render_list_answer(intent: dict, hits: list[dict], bolum_adi: str) -> str:
     return "\n".join(lines)
 
 
-def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar") -> dict:
+# --- Karşılaştırma modu ---
+# "2021 vs 2025", "2016 ile 2025 farkı", "2021 ve 2025 müfredat" gibi sorgular.
+COMPARE_TRIGGERS = ["fark", "kıyas", "kiyas", "karşılaş", "karsilas",
+                    " vs ", " v.s.", " ile ", " ve "]
+YEAR_RE = re.compile(r"\b(20\d{2})\b")
+
+
+def detect_compare_intent(question: str, bolum: str) -> dict | None:
+    """Birden fazla müfredat yılı + karşılaştırma tetikleyicisi varsa
+    {'years': [...], 'mufredat_yillari': [...]} döndürür."""
+    q = question.lower()
+    years_raw = list(dict.fromkeys(YEAR_RE.findall(question)))  # benzersiz, sıralı
+    if len(years_raw) < 2:
+        return None
+    has_trigger = any(t in q for t in COMPARE_TRIGGERS)
+    if not has_trigger:
+        return None
+    # Her yıl için aktif müfredat eşlemesini parse_intent kuralından geçir
+    mufredat = []
+    for y in years_raw[:3]:  # en fazla 3 yıl karşılaştır
+        fake_q = f"{y} ders programı"
+        intent = parse_intent(fake_q, bolum)
+        if intent:
+            mufredat.append({"giris_yili": int(y), "mufredat_yili": intent["mufredat_yili"]})
+    # Aynı müfredata düşen yılları teklemesin
+    seen = set()
+    uniq = []
+    for m in mufredat:
+        if m["mufredat_yili"] in seen:
+            continue
+        seen.add(m["mufredat_yili"])
+        uniq.append(m)
+    if len(uniq) < 2:
+        return None
+    return {"items": uniq}
+
+
+def _format_courses_table(hits: list[dict]) -> dict[str, dict]:
+    """Müfredat hit'lerini ders_kodu -> {ad, donem, ...} sözlüğüne çevir."""
+    table: dict[str, dict] = {}
+    for h in hits:
+        md = h["metadata"]
+        if md.get("tip") != "mufredat":
+            continue
+        kod = md.get("ders_kodu", "").strip()
+        if not kod:
+            continue
+        table[kod] = {
+            "ders_adi": md.get("ders_adi", ""),
+            "donem": md.get("donem"),
+            "akts": md.get("akts", ""),
+            "kredi": md.get("kredi", ""),
+            "on_sart": md.get("on_sart", ""),
+        }
+    return table
+
+
+def compare_curricula(intent: dict, bolum: str, bolum_adi: str) -> dict:
+    """Birden fazla müfredat yılını yan yana karşılaştır + farkları markdown'la döndür."""
+    items = intent["items"]
+    tables: list[tuple[dict, dict[str, dict]]] = []  # (item, course_table)
+    all_hits: list[dict] = []
+    for item in items:
+        muf = item["mufredat_yili"]
+        hits = fetch_semester_courses(muf, [1, 2, 3, 4, 5, 6, 7, 8], bolum)
+        all_hits.extend(hits)
+        tables.append((item, _format_courses_table(hits)))
+
+    lines: list[str] = []
+    lines.append(f"## {bolum_adi} — Müfredat Karşılaştırması")
+    yrs = ", ".join(f"{it['mufredat_yili']}" for it, _ in tables)
+    lines.append(f"_Karşılaştırılan müfredatlar: **{yrs}**_\n")
+
+    # Her müfredatın ders sayısı özeti
+    for item, tbl in tables:
+        lines.append(
+            f"- **{item['mufredat_yili']} müfredatı:** {len(tbl)} ders"
+        )
+    lines.append("")
+
+    # Farklar: birinde olup diğer(ler)inde olmayanlar
+    all_codes = set()
+    for _, tbl in tables:
+        all_codes.update(tbl.keys())
+
+    only_in: dict[str, list[str]] = {}
+    common: list[str] = []
+    for kod in sorted(all_codes):
+        present = [it["mufredat_yili"] for it, tbl in tables if kod in tbl]
+        if len(present) == len(tables):
+            common.append(kod)
+        else:
+            label = " + ".join(present)
+            only_in.setdefault(label, []).append(kod)
+
+    if only_in:
+        lines.append(f"### ➕ Müfredata Özgü Dersler")
+        for label, kodlar in only_in.items():
+            lines.append(f"\n**Sadece {label} müfredatında ({len(kodlar)} ders):**")
+            for kod in kodlar:
+                # ilk eşleşen tabloda detayları bul
+                detay = next((tbl[kod] for _, tbl in tables if kod in tbl), {})
+                ad = detay.get("ders_adi", "")
+                d = detay.get("donem", "")
+                lines.append(f"- `{kod}` — {ad} _(dönem {d})_")
+        lines.append("")
+
+    if common:
+        lines.append(f"### ✓ Ortak Dersler ({len(common)} adet)")
+        # Çok kalabalıksa ilk 30 + "..."
+        show = common[:30]
+        lines.append(", ".join(f"`{k}`" for k in show)
+                     + (f" _... ve {len(common)-30} ders daha_" if len(common) > 30 else ""))
+        lines.append("")
+
+    # AKTS / dönem değişen dersler
+    if len(tables) == 2:
+        (it1, t1), (it2, t2) = tables
+        changed: list[str] = []
+        for kod in sorted(set(t1.keys()) & set(t2.keys())):
+            a, b = t1[kod], t2[kod]
+            diffs = []
+            if a.get("donem") != b.get("donem"):
+                diffs.append(f"dönem {a.get('donem')}→{b.get('donem')}")
+            if str(a.get("akts", "")).strip() != str(b.get("akts", "")).strip():
+                diffs.append(f"AKTS {a.get('akts')}→{b.get('akts')}")
+            if diffs:
+                changed.append(f"- `{kod}` — {a.get('ders_adi','')}: {', '.join(diffs)}")
+        if changed:
+            lines.append(f"### 🔀 Aynı Ders, Farklı Konum/AKTS ({len(changed)} adet)")
+            lines.extend(changed[:25])
+            if len(changed) > 25:
+                lines.append(f"_... ve {len(changed)-25} ders daha_")
+
+    return {"answer": "\n".join(lines), "hits": all_hits}
+
+
+# ============================ STREAMING ============================
+
+class StreamedAnswer:
+    """Streaming cevap kapsayıcısı. `hits` sorgu öncesi hazır, metin chunk'ları
+    iterator üzerinden yayılır. Streamlit `st.write_stream(...)` ile uyumlu."""
+
+    def __init__(self, hits: list[dict], chunk_iter):
+        self.hits = hits
+        self._iter = chunk_iter
+        self._buffer: list[str] = []
+
+    def __iter__(self):
+        for chunk in self._iter:
+            self._buffer.append(chunk)
+            yield chunk
+
+    @property
+    def full_text(self) -> str:
+        return "".join(self._buffer)
+
+
+def _llm_stream_chunks(question: str, hits: list[dict], bolum: str,
+                       history: list[dict] | None, prompt_extra: str = ""):
+    """Groq streaming generator — token-by-token yield eder."""
+    context = format_context(hits)
+    bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
+    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi)
+    history_msgs = _build_history_messages(history)
+    user_content = (
+        f"BAĞLAM:\n{context}\n\n"
+        f"SORU: {question}\n\n"
+        "Yukarıdaki bağlamı kullanarak Türkçe cevap ver. "
+        "Önceki konuşma akışını dikkate al (kullanıcı kısa takip soruları sorabilir). "
+        f"{prompt_extra}"
+        "Kaynak belirt."
+    )
+    client = Groq()
+    stream = client.chat.completions.create(
+        model=LLM_MODEL,
+        max_tokens=1024,
+        temperature=0.2,
+        stream=True,
+        messages=[
+            {"role": "system", "content": sys_prompt},
+            *history_msgs,
+            {"role": "user", "content": user_content},
+        ],
+    )
+    for chunk in stream:
+        delta = getattr(chunk.choices[0].delta, "content", None)
+        if delta:
+            yield delta
+
+
+def answer_stream(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
+                  history: list[dict] | None = None) -> StreamedAnswer:
+    """Streaming varyantı. Kararlı (deterministik) modlarda metni tek parça yield eder;
+    LLM modlarında token token Groq'tan akıtır."""
+    bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
+
+    # Karşılaştırma — deterministik
+    cmp_intent = detect_compare_intent(question, bolum)
+    if cmp_intent:
+        result = compare_curricula(cmp_intent, bolum, bolum_adi)
+        return StreamedAnswer(result["hits"], iter([result["answer"]]))
+
+    intent = parse_intent(question, bolum)
+
+    # Ders kodu — LLM stream
+    code_match = COURSE_CODE_RE.search(question.upper())
+    if code_match:
+        code = f"{code_match.group(1)} {code_match.group(2)}"
+        code_hits = fetch_courses_by_code(code, bolum)
+        if code_hits:
+            extra = retrieve(question, k=3, bolum=bolum, history=history)
+            seen = {h["text"] for h in code_hits}
+            for h in extra:
+                if h["text"] not in seen:
+                    code_hits.append(h)
+            extra_prompt = (
+                "Eğer ön şart soruluyorsa BAĞLAM'daki 'Ön şart:' alanına bak. "
+            )
+            return StreamedAnswer(
+                code_hits,
+                _llm_stream_chunks(question, code_hits, bolum, history, extra_prompt),
+            )
+
+    # Liste modu — deterministik
+    if intent:
+        hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
+        extra = retrieve(question, k=3, bolum=bolum, history=history)
+        seen = {h["text"] for h in hits}
+        for h in extra:
+            if h["text"] not in seen:
+                hits.append(h)
+        text = _render_list_answer(intent, hits, bolum_adi)
+        return StreamedAnswer(hits, iter([text]))
+
+    # Genel LLM stream
+    hits = retrieve(question, k=k, bolum=bolum, history=history)
+    return StreamedAnswer(hits, _llm_stream_chunks(question, hits, bolum, history))
+
+
+# =====================================================================
+
+
+def _llm_messages(question: str, hits: list[dict], bolum: str,
+                  history: list[dict] | None) -> list[dict]:
+    """Streaming ve non-streaming çağrıların ortak mesaj listesi."""
+    context = format_context(hits)
+    bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
+    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi)
+    history_msgs = _build_history_messages(history)
+    return [
+        {"role": "system", "content": sys_prompt},
+        *history_msgs,
+        {
+            "role": "user",
+            "content": (
+                f"BAĞLAM:\n{context}\n\n"
+                f"SORU: {question}\n\n"
+                "Yukarıdaki bağlamı kullanarak Türkçe cevap ver. "
+                "Önceki konuşma akışını dikkate al (kullanıcı kısa takip soruları sorabilir). "
+                "Eğer ön şart soruluyorsa BAĞLAM'daki 'Ön şart:' alanına bak. "
+                "Kaynak belirt."
+            ),
+        },
+    ]
+
+
+def answer_stream(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
+                  history: list[dict] | None = None):
+    """Streaming-uyumlu cevap döndürür.
+
+    Dönüş:
+        {
+          "mode": "list" | "compare" | "llm",
+          "hits": [...],
+          "text": str | None,           # liste/karşılaştırma modunda dolu
+          "token_iter": iter | None,    # LLM modunda dolu — token akışı
+        }
+    """
+    bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
+
+    # 1) Karşılaştırma — deterministik, stream yok
+    cmp_intent = detect_compare_intent(question, bolum)
+    if cmp_intent:
+        res = compare_curricula(cmp_intent, bolum, bolum_adi)
+        return {"mode": "compare", "hits": res["hits"], "text": res["answer"], "token_iter": None}
+
+    intent = parse_intent(question, bolum)
+
+    # 2) Ders kodu doğrudan fetch -> LLM (stream)
+    code_match = COURSE_CODE_RE.search(question.upper())
+    if code_match:
+        code = f"{code_match.group(1)} {code_match.group(2)}"
+        code_hits = fetch_courses_by_code(code, bolum)
+        if code_hits:
+            # Ek bağlam — reranker kapalı (zaten code_hits asıl kaynak)
+            extra = retrieve(question, k=3, bolum=bolum, history=history, use_reranker=False)
+            seen = {h["text"] for h in code_hits}
+            for h in extra:
+                if h["text"] not in seen:
+                    code_hits.append(h)
+            return _make_llm_stream(question, code_hits, bolum, history)
+
+    # 3) Liste modu — deterministik, stream yok
+    if intent:
+        hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
+        # Ek bağlam — reranker kapalı (zaten dönem dersleri kesin sonuç)
+        extra = retrieve(question, k=3, bolum=bolum, history=history, use_reranker=False)
+        seen = {h["text"] for h in hits}
+        for h in extra:
+            if h["text"] not in seen:
+                hits.append(h)
+        text = _render_list_answer(intent, hits, bolum_adi)
+        return {"mode": "list", "hits": hits, "text": text, "token_iter": None}
+
+    # 4) Genel RAG — LLM stream
+    hits = retrieve(question, k=k, bolum=bolum, history=history)
+    return _make_llm_stream(question, hits, bolum, history)
+
+
+def _make_llm_stream(question: str, hits: list[dict], bolum: str,
+                     history: list[dict] | None) -> dict:
+    """Groq stream çağrısı + token generator döndür."""
+    messages = _llm_messages(question, hits, bolum, history)
+
+    def _token_generator():
+        client = Groq()
+        stream = client.chat.completions.create(
+            model=LLM_MODEL,
+            max_tokens=1024,
+            temperature=0.2,
+            messages=messages,
+            stream=True,
+        )
+        for chunk in stream:
+            delta = chunk.choices[0].delta.content if chunk.choices else None
+            if delta:
+                yield delta
+
+    return {"mode": "llm", "hits": hits, "text": None, "token_iter": _token_generator()}
+
+
+def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
+           history: list[dict] | None = None) -> dict:
+    bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
+
+    # Karşılaştırma modu (multi-year diff) — diğer intent'lerden önce kontrol
+    cmp_intent = detect_compare_intent(question, bolum)
+    if cmp_intent:
+        return compare_curricula(cmp_intent, bolum, bolum_adi)
+
     intent = parse_intent(question, bolum)
     list_mode = False
 
@@ -311,34 +897,25 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar") -> dict:
         code = f"{code_match.group(1)} {code_match.group(2)}"
         code_hits = fetch_courses_by_code(code, bolum)
         if code_hits:
-            extra = retrieve(question, k=3, bolum=bolum)
+            extra = retrieve(question, k=3, bolum=bolum, history=history)
             seen = {h["text"] for h in code_hits}
             for h in extra:
                 if h["text"] not in seen:
                     code_hits.append(h)
             hits = code_hits
             # Liste modu DEĞİL — LLM normal cevap verecek (ön şart vb için)
-            return _llm_answer(question, hits, bolum)
+            return _llm_answer(question, hits, bolum, history=history)
 
     if intent:
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
-        extra = retrieve(question, k=3, bolum=bolum)
+        extra = retrieve(question, k=3, bolum=bolum, history=history)
         seen = {h["text"] for h in hits}
         for h in extra:
             if h["text"] not in seen:
                 hits.append(h)
         list_mode = True
     else:
-        hits = retrieve(question, k=k, bolum=bolum)
-
-    bolum_adi = {
-        "bilgisayar": "Bilgisayar Mühendisliği",
-        "makine": "Makine Mühendisliği",
-        "endustri": "Endüstri Mühendisliği",
-        "elektrik": "Elektrik-Elektronik Mühendisliği",
-        "insaat": "İnşaat Mühendisliği",
-        "malzeme": "Malzeme Bilimi ve Nanoteknoloji Mühendisliği",
-    }.get(bolum, "Mühendislik")
+        hits = retrieve(question, k=k, bolum=bolum, history=history)
 
     if list_mode:
         # LLM'i atla: dersleri deterministik markdown olarak render et (hiçbir ders kaçmaz)
@@ -347,6 +924,7 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar") -> dict:
 
     context = format_context(hits)
     sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi)
+    history_msgs = _build_history_messages(history)
 
     client = Groq()
     resp = client.chat.completions.create(
@@ -355,12 +933,15 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar") -> dict:
         temperature=0.2,
         messages=[
             {"role": "system", "content": sys_prompt},
+            *history_msgs,
             {
                 "role": "user",
                 "content": (
                     f"BAĞLAM:\n{context}\n\n"
                     f"SORU: {question}\n\n"
-                    "Yukarıdaki bağlamı kullanarak Türkçe cevap ver. Kaynak belirt."
+                    "Yukarıdaki bağlamı kullanarak Türkçe cevap ver. "
+                    "Önceki konuşma akışını dikkate al (kullanıcı kısa takip soruları sorabilir). "
+                    "Kaynak belirt."
                 ),
             },
         ],

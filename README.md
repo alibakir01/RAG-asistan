@@ -23,7 +23,7 @@ python -m venv venv
 venv\Scripts\activate          # Windows
 # source venv/bin/activate     # Linux/macOS
 
-pip install python-docx pdfplumber chromadb sentence-transformers groq streamlit python-dotenv pandas openpyxl
+pip install -r requirements.txt
 ```
 
 ## Ortam Değişkeni
