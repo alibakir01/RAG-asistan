@@ -13,8 +13,11 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
+
+from src import gpa
 from src.rag import BOLUM_ADI_MAP, answer_stream, detect_bolum
 
 
@@ -543,11 +546,14 @@ with st.sidebar:
     bolum_id = BOLUM_ID_MAP[bolum_secim]
     bolum_icon = BOLUM_SVG[bolum_id]
 
-    # Bölüm değiştiyse konuşma geçmişini sıfırla — farklı bölümün bağlamı karışmasın.
+    # Bölüm değiştiyse konuşma geçmişini + GPA state'ini sıfırla.
     if st.session_state.get("_active_bolum") != bolum_id:
         st.session_state["_active_bolum"] = bolum_id
         st.session_state["messages"] = []
         st.session_state["_qa_cache"] = {}
+        for k in list(st.session_state.keys()):
+            if isinstance(k, str) and k.startswith("gpa_"):
+                del st.session_state[k]
 
     st.markdown(
         f"""
@@ -641,6 +647,9 @@ st.markdown(
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
+# ============================ TABS ============================
+chat_tab, gpa_tab = st.tabs(["💬 Asistan", "📊 GPA Hesaplayıcı"])
+
 # ============================ ÖNERİLER (boş durum) ============================
 SUGGESTIONS = {
     "bilgisayar": [
@@ -681,18 +690,19 @@ SUGGESTIONS = {
     ],
 }
 
-if not st.session_state["messages"]:
-    st.markdown(
-        '<div class="welcome"><h3>💬 Sormak istediğin bir şey var mı?</h3>'
-        '<p>Aşağıdaki örneklerden birini seç ya da kendi sorunu yaz.</p></div>',
-        unsafe_allow_html=True,
-    )
-    cols = st.columns(2)
-    for i, (icon, text) in enumerate(SUGGESTIONS.get(bolum_id, [])):
-        with cols[i % 2]:
-            if st.button(f"{icon}  {text}", key=f"sug_{i}", use_container_width=True):
-                st.session_state["pending_q"] = text
-                st.rerun()
+with chat_tab:
+    if not st.session_state["messages"]:
+        st.markdown(
+            '<div class="welcome"><h3>💬 Sormak istediğin bir şey var mı?</h3>'
+            '<p>Aşağıdaki örneklerden birini seç ya da kendi sorunu yaz.</p></div>',
+            unsafe_allow_html=True,
+        )
+        cols = st.columns(2)
+        for i, (icon, text) in enumerate(SUGGESTIONS.get(bolum_id, [])):
+            with cols[i % 2]:
+                if st.button(f"{icon}  {text}", key=f"sug_{i}", use_container_width=True):
+                    st.session_state["pending_q"] = text
+                    st.rerun()
 
 # ============================ MESAJ GEÇMİŞİ ============================
 def _render_sources(hits: list[dict], key_prefix: str):
@@ -754,78 +764,360 @@ def _render_rating(msg_idx: int, m: dict):
             st.rerun()
 
 
-for idx, m in enumerate(st.session_state["messages"]):
-    avatar = "🧑‍🎓" if m["role"] == "user" else "🎓"
-    with st.chat_message(m["role"], avatar=avatar):
-        st.markdown(m["content"])
-        if m["role"] == "assistant":
-            _render_sources(m.get("hits", []), key_prefix=f"hist-{idx}")
-            _render_rating(idx, m)
+with chat_tab:
+    for idx, m in enumerate(st.session_state["messages"]):
+        avatar = "🧑‍🎓" if m["role"] == "user" else "🎓"
+        with st.chat_message(m["role"], avatar=avatar):
+            st.markdown(m["content"])
+            if m["role"] == "assistant":
+                _render_sources(m.get("hits", []), key_prefix=f"hist-{idx}")
+                _render_rating(idx, m)
 
 # ============================ CHAT INPUT ============================
-q = st.chat_input("Örn: 2023 girişliyim 3. dönem hangi dersler var?")
-if not q and "pending_q" in st.session_state:
-    q = st.session_state.pop("pending_q")
+with chat_tab:
+    q = st.chat_input("Örn: 2023 girişliyim 3. dönem hangi dersler var?")
+    if not q and "pending_q" in st.session_state:
+        q = st.session_state.pop("pending_q")
 
-if q:
-    # Otomatik bölüm tespiti — soruda spesifik anahtar kelime varsa bolum'u override et
-    detected = detect_bolum(q)
-    effective_bolum = detected if detected and detected != bolum_id else bolum_id
-    auto_switched = detected is not None and detected != bolum_id
+    if q:
+        # Otomatik bölüm tespiti — soruda spesifik anahtar kelime varsa bolum'u override et
+        detected = detect_bolum(q)
+        effective_bolum = detected if detected and detected != bolum_id else bolum_id
+        auto_switched = detected is not None and detected != bolum_id
 
-    st.session_state["messages"].append({"role": "user", "content": q})
-    with st.chat_message("user", avatar="🧑‍🎓"):
-        st.markdown(q)
-        if auto_switched:
-            st.info(
-                f"🔀 Bu soru **{BOLUM_ADI_MAP[detected]}** ile ilgili görünüyor — "
-                f"cevabı o bölümün kaynaklarından getiriyorum.",
-                icon="ℹ️",
+        st.session_state["messages"].append({"role": "user", "content": q})
+        with st.chat_message("user", avatar="🧑‍🎓"):
+            st.markdown(q)
+            if auto_switched:
+                st.info(
+                    f"🔀 Bu soru **{BOLUM_ADI_MAP[detected]}** ile ilgili görünüyor — "
+                    f"cevabı o bölümün kaynaklarından getiriyorum.",
+                    icon="ℹ️",
+                )
+
+        # Geçmişi LLM için hazırla
+        history_for_rag = [
+            {"role": m["role"], "content": m["content"]}
+            for m in st.session_state["messages"][:-1]
+            if m["role"] in ("user", "assistant")
+        ]
+        history_json = json.dumps(history_for_rag, ensure_ascii=False) if history_for_rag else ""
+
+        msg_id = f"msg-{int(time.time() * 1000)}"
+
+        with st.chat_message("assistant", avatar="🎓"):
+            try:
+                cached = get_cached(q, top_k, effective_bolum, history_json)
+                if cached:
+                    # Cache hit — anında render
+                    st.markdown(cached["answer"])
+                    final_text = cached["answer"]
+                    final_hits = cached["hits"]
+                else:
+                    with st.spinner("✨ Düşünüyorum..."):
+                        result = answer_stream(q, k=top_k, bolum=effective_bolum, history=history_for_rag)
+                    final_hits = result["hits"]
+                    if result["mode"] == "llm":
+                        # Token-by-token render
+                        final_text = st.write_stream(result["token_iter"])
+                    else:
+                        # list / compare — deterministik tam metin
+                        st.markdown(result["text"])
+                        final_text = result["text"]
+                    set_cached(q, top_k, effective_bolum, history_json, {
+                        "answer": final_text, "hits": final_hits,
+                    })
+
+                # Mesajı kaydet (rating UI için ek alanlar dahil)
+                st.session_state["messages"].append({
+                    "role": "assistant",
+                    "content": final_text,
+                    "hits": final_hits,
+                    "id": msg_id,
+                    "question": q,
+                    "bolum": effective_bolum,
+                })
+                _render_sources(final_hits, key_prefix=f"new-{msg_id}")
+                _render_rating(len(st.session_state["messages"]) - 1, st.session_state["messages"][-1])
+            except Exception as e:
+                st.error(f"⚠️ Hata: {e}")
+
+
+# ============================ GPA TAB ============================
+with gpa_tab:
+    st.markdown("### 📊 GPA Hesaplayıcı")
+    st.caption(
+        f"**Aktif bölüm:** {bolum_secim} · "
+        "Sınıfını seç, bu dönem aldığın derslere harf notunu gir, geçmiş ortalamanı yaz — "
+        "yeni Genel Ortalamanı (CGPA) hesaplayalım."
+    )
+
+    cur_years = gpa.available_curricula(bolum_id)
+    if not cur_years:
+        st.warning("Bu bölüm için henüz müfredat verisi yüklenmemiş.")
+    else:
+        # ---- Seçimler: müfredat yılı + sınıf + dönem ----
+        sc1, sc2, sc3 = st.columns(3)
+        with sc1:
+            sel_year = st.selectbox(
+                "📚 Müfredat yılı",
+                cur_years,
+                index=len(cur_years) - 1,
+                key=f"gpa_year_{bolum_id}",
+            )
+        with sc2:
+            SINIF_LABELS = {1: "1. Sınıf", 2: "2. Sınıf", 3: "3. Sınıf", 4: "4. Sınıf", 0: "Tüm sınıflar"}
+            sel_sinif = st.selectbox(
+                "🎓 Sınıf",
+                options=[1, 2, 3, 4, 0],
+                index=0,
+                format_func=lambda x: SINIF_LABELS[x],
+                key=f"gpa_sinif_{bolum_id}",
+            )
+        with sc3:
+            if sel_sinif == 0:
+                donem_opts = [0]
+                donem_labels = {0: "Tüm Dönemler"}
+            else:
+                d1 = sel_sinif * 2 - 1
+                d2 = sel_sinif * 2
+                donem_opts = [0, d1, d2]
+                donem_labels = {0: "İki Dönem de", d1: f"{d1}. Dönem (Güz)", d2: f"{d2}. Dönem (Bahar)"}
+                
+            sel_donem = st.selectbox(
+                "📅 Dönem",
+                options=donem_opts,
+                index=0,
+                format_func=lambda x: donem_labels[x],
+                key=f"gpa_donem_{bolum_id}",
             )
 
-    # Geçmişi LLM için hazırla
-    history_for_rag = [
-        {"role": m["role"], "content": m["content"]}
-        for m in st.session_state["messages"][:-1]
-        if m["role"] in ("user", "assistant")
-    ]
-    history_json = json.dumps(history_for_rag, ensure_ascii=False) if history_for_rag else ""
+        # ---- Geçmiş CGPA + kredi ----
+        st.markdown("#### Geçmiş Akademik Bilgi")
+        gc1, gc2 = st.columns(2)
+        with gc1:
+            prev_cgpa = st.number_input(
+                "Geçmiş Genel Ortalaman (önceki CGPA)",
+                min_value=0.0, max_value=4.0, value=0.0, step=0.01,
+                key=f"gpa_prev_cgpa_{bolum_id}",
+                help="Bu döneme girmeden önceki kümülatif ortalaman. İlk dönemse 0.00 bırak.",
+            )
+        with gc2:
+            prev_credits = st.number_input(
+                "Önceki Toplam Kredi",
+                min_value=0, max_value=300, value=0, step=1,
+                key=f"gpa_prev_cred_{bolum_id}",
+                help="Şimdiye kadar geçtiğin derslerin toplam kredisi.",
+            )
 
-    msg_id = f"msg-{int(time.time() * 1000)}"
+        st.markdown("---")
 
-    with st.chat_message("assistant", avatar="🎓"):
-        try:
-            cached = get_cached(q, top_k, effective_bolum, history_json)
-            if cached:
-                # Cache hit — anında render
-                st.markdown(cached["answer"])
-                final_text = cached["answer"]
-                final_hits = cached["hits"]
-            else:
-                with st.spinner("✨ Düşünüyorum..."):
-                    result = answer_stream(q, k=top_k, bolum=effective_bolum, history=history_for_rag)
-                final_hits = result["hits"]
-                if result["mode"] == "llm":
-                    # Token-by-token render
-                    final_text = st.write_stream(result["token_iter"])
-                else:
-                    # list / compare — deterministik tam metin
-                    st.markdown(result["text"])
-                    final_text = result["text"]
-                set_cached(q, top_k, effective_bolum, history_json, {
-                    "answer": final_text, "hits": final_hits,
+        # ---- Müfredat tablosu (sınıfa göre filtreli) ----
+        df_key = f"gpa_df_{bolum_id}_{sel_year}_{sel_sinif}_{sel_donem}"
+        if df_key not in st.session_state:
+            courses = gpa.courses_for_year(bolum_id, sel_year, sel_sinif, sel_donem)
+            st.session_state[df_key] = pd.DataFrame([
+                {
+                    "Dönem": c["donem"],
+                    "Ders Kodu": c["ders_kodu"],
+                    "Ders Adı": c["ders_adi"],
+                    "Kredi": c["kredi"],
+                    "AKTS": c["akts"],
+                    "Not": "—",
+                    "P/F": gpa.is_default_pf(c["ders_kodu"], c["ders_adi"]),
+                }
+                for c in courses
+            ])
+
+        sinif_label = SINIF_LABELS[sel_sinif]
+        donem_label = donem_labels[sel_donem] if sel_donem != 0 else ""
+        donem_text = f" ({donem_label})" if donem_label else ""
+        st.markdown(f"##### Bu Dönem Dersleri — {sinif_label}{donem_text}")
+        if st.session_state[df_key].empty:
+            st.info("Bu sınıf için müfredatta ders bulunamadı.")
+            edited = st.session_state[df_key]
+        else:
+            edited = st.data_editor(
+                st.session_state[df_key],
+                column_config={
+                    "Dönem": st.column_config.NumberColumn(width="small", disabled=True),
+                    "Ders Kodu": st.column_config.TextColumn(width="small", disabled=True),
+                    "Ders Adı": st.column_config.TextColumn(width="medium", disabled=True),
+                    "Kredi": st.column_config.NumberColumn(width="small", disabled=True),
+                    "AKTS": st.column_config.NumberColumn(width="small", disabled=True),
+                    "Not": st.column_config.SelectboxColumn(
+                        options=gpa.GRADE_OPTIONS, width="small",
+                        help="Bu dönem aldığın harf notu (A, A-, B+, ...). Almadıysan '—' bırak.",
+                    ),
+                    "P/F": st.column_config.CheckboxColumn(
+                        width="small",
+                        help="Pass/Fail dersi (GPA'ya katılmaz; AKTS sayılır).",
+                    ),
+                },
+                use_container_width=True,
+                hide_index=True,
+                num_rows="fixed",
+                key=f"editor_{df_key}",
+            )
+
+        # ---- Müfredat dışı ekstra dersler ----
+        extra_key = f"gpa_extras_{bolum_id}"
+        if extra_key not in st.session_state:
+            st.session_state[extra_key] = pd.DataFrame(
+                columns=["Ders Kodu", "Ders Adı", "Kredi", "AKTS", "Not", "Tip", "P/F"]
+            )
+
+        with st.expander("➕ Müfredat dışı ders ekle (yatay geçiş, intibak, yaz okulu...)"):
+            # ----- Arama + ekle widget'ı (tüm bölüm-müfredatlarındaki dersler) -----
+            catalog = gpa.all_courses_catalog()
+            code_options = [""] + sorted(catalog.keys())
+
+            def _fmt_option(c: str) -> str:
+                if not c:
+                    return "— ders ara veya kod yaz —"
+                info = catalog[c]
+                return f"{c} — {info['ders_adi']} ({info['kredi']} kredi · {info['akts']} AKTS)"
+
+            sc1, sc2 = st.columns([5, 1])
+            with sc1:
+                sel_code = st.selectbox(
+                    "🔎 Ders ara (kod veya isim ile filtrele — yazmaya başla)",
+                    options=code_options,
+                    format_func=_fmt_option,
+                    index=0,
+                    key=f"gpa_extra_search_{bolum_id}",
+                )
+            with sc2:
+                st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
+                if st.button("➕ Ekle", key=f"gpa_extra_add_{bolum_id}", use_container_width=True):
+                    if sel_code:
+                        c = catalog[sel_code]
+                        existing = st.session_state[extra_key]
+                        already = (
+                            "Ders Kodu" in existing.columns
+                            and (existing["Ders Kodu"].astype(str).str.upper() == c["ders_kodu"]).any()
+                        )
+                        if not already:
+                            new_row = pd.DataFrame([{
+                                "Ders Kodu": c["ders_kodu"],
+                                "Ders Adı": c["ders_adi"],
+                                "Kredi": c["kredi"],
+                                "AKTS": c["akts"],
+                                "Not": "—",
+                                "Tip": "Yatay geçiş",
+                                "P/F": gpa.is_default_pf(c["ders_kodu"], c["ders_adi"]),
+                            }])
+                            st.session_state[extra_key] = pd.concat(
+                                [existing, new_row], ignore_index=True
+                            )
+                            st.rerun()
+
+            st.caption(
+                "Aradığın dersi seç → **➕ Ekle** → ders kodu, adı, kredi ve AKTS otomatik dolar. "
+                "Sadece harf notunu seçmen yeterli. Manuel satır da ekleyebilirsin."
+            )
+
+            edited_extras = st.data_editor(
+                st.session_state[extra_key],
+                column_config={
+                    "Ders Kodu": st.column_config.TextColumn(width="small"),
+                    "Ders Adı": st.column_config.TextColumn(width="medium"),
+                    "Kredi": st.column_config.NumberColumn(min_value=0, max_value=15, default=3, width="small"),
+                    "AKTS": st.column_config.NumberColumn(min_value=0, max_value=30, default=5, width="small"),
+                    "Not": st.column_config.SelectboxColumn(options=gpa.GRADE_OPTIONS, default="—", width="small"),
+                    "Tip": st.column_config.SelectboxColumn(options=gpa.EXTRA_TYPES, width="medium"),
+                    "P/F": st.column_config.CheckboxColumn(width="small"),
+                },
+                use_container_width=True,
+                hide_index=True,
+                num_rows="dynamic",
+                key=f"editor_{extra_key}",
+            )
+
+        # ---- Hesapla / Sıfırla ----
+        bc1, bc2 = st.columns([1, 1])
+        do_calc = bc1.button("🎯 Yeni CGPA Hesapla", type="primary", use_container_width=True)
+        if bc2.button("🔄 Notları Sıfırla", use_container_width=True):
+            for k in list(st.session_state.keys()):
+                if isinstance(k, str) and (k.startswith("gpa_df_") or k.startswith("editor_gpa_df_") or k == extra_key or k == f"editor_{extra_key}"):
+                    st.session_state.pop(k, None)
+            st.rerun()
+
+        if do_calc:
+            entries: list[dict] = []
+            if hasattr(edited, "iterrows"):
+                for _, r in edited.iterrows():
+                    grade = str(r.get("Not", "—") or "—").strip()
+                    if grade in ("", "—", "nan"):
+                        continue
+                    entries.append({
+                        "ders_kodu": str(r["Ders Kodu"]),
+                        "kredi": int(r["Kredi"] or 0),
+                        "akts": int(r["AKTS"] or 0),
+                        "not": grade,
+                        "pf": bool(r.get("P/F")),
+                    })
+            for _, r in edited_extras.iterrows():
+                kod = str(r.get("Ders Kodu", "") or "").strip()
+                grade = str(r.get("Not", "—") or "—").strip()
+                if not kod or grade in ("", "—", "nan"):
+                    continue
+                entries.append({
+                    "ders_kodu": kod,
+                    "kredi": int(r["Kredi"] or 0) if pd.notna(r.get("Kredi")) else 0,
+                    "akts": int(r["AKTS"] or 0) if pd.notna(r.get("AKTS")) else 0,
+                    "not": grade,
+                    "pf": bool(r.get("P/F")),
                 })
 
-            # Mesajı kaydet (rating UI için ek alanlar dahil)
-            st.session_state["messages"].append({
-                "role": "assistant",
-                "content": final_text,
-                "hits": final_hits,
-                "id": msg_id,
-                "question": q,
-                "bolum": effective_bolum,
-            })
-            _render_sources(final_hits, key_prefix=f"new-{msg_id}")
-            _render_rating(len(st.session_state["messages"]) - 1, st.session_state["messages"][-1])
-        except Exception as e:
-            st.error(f"⚠️ Hata: {e}")
+            if not entries:
+                st.warning("Hiç not girilmemiş. En az bir derse harf notu seç.")
+            else:
+                # Validation: prev_cgpa > 0 ama prev_credits = 0 → uyar (yoksa CGPA = sem_gpa olur)
+                if prev_cgpa > 0 and int(prev_credits) == 0:
+                    st.error(
+                        "⚠️ **Geçmiş Genel Ortalaman'ı girdin ama 'Önceki Toplam Kredi' = 0.** "
+                        "Doğru CGPA hesabı için ikisini de girmen gerek (örn. 2. yıl sonu: ~60 kredi). "
+                        "Aksi halde Yeni CGPA, Bu Dönem GPA'sı ile aynı çıkacaktır."
+                    )
+
+                result = gpa.compute_combined(prev_cgpa, int(prev_credits), entries)
+                st.markdown("---")
+                m1, m2, m3, m4 = st.columns(4)
+                m1.metric("🎯 Yeni CGPA", f"{result['new_cgpa']:.2f} / 4.00",
+                          delta=f"{result['new_cgpa'] - result['prev_cgpa']:+.2f}"
+                          if result['prev_credits'] > 0 else None)
+                m2.metric("📅 Bu Dönem GPA", f"{result['sem_gpa']:.2f}")
+                m3.metric(
+                    "✅ Geçen / ❌ Kalan",
+                    f"{result['sem_passed']} / {result['sem_failed']}",
+                )
+                m4.metric("📊 Toplam Kredi", result['total_credits'],
+                          delta=f"+{result['sem_credits']} bu dönem" if result['sem_credits'] else None)
+
+                # Şeffaf hesap kırılımı — kullanıcı formülü görsün
+                prev_pts = result['prev_cgpa'] * result['prev_credits']
+                sem_pts_calc = result['sem_gpa'] * result['sem_credits']
+                with st.expander("🧮 Hesap detayı"):
+                    st.markdown(
+                        f"""
+**Formül:**
+`Yeni CGPA = (Geçmiş CGPA × Geçmiş Kredi + Bu dönem puanları) / Toplam Kredi`
+
+| | Kredi | Ortalama | Puan |
+|---|---:|---:|---:|
+| Geçmiş | {result['prev_credits']} | {result['prev_cgpa']:.2f} | {prev_pts:.2f} |
+| Bu dönem | {result['sem_credits']} | {result['sem_gpa']:.2f} | {sem_pts_calc:.2f} |
+| **Toplam** | **{result['total_credits']}** | **{result['new_cgpa']:.2f}** | **{prev_pts + sem_pts_calc:.2f}** |
+
+`{prev_pts:.2f} + {sem_pts_calc:.2f} = {prev_pts + sem_pts_calc:.2f}` puan ÷ `{result['total_credits']}` kredi = **{result['new_cgpa']:.2f}**
+                        """
+                    )
+
+                if result["onor"]:
+                    st.success(f"**{result['onor']}** kategorisindesin! (CGPA ≥ "
+                               f"{gpa.YUKSEK_ONOR_THRESHOLD if 'Yüksek' in result['onor'] else gpa.ONOR_THRESHOLD:.2f})")
+                elif result["new_cgpa"] > 0:
+                    delta = gpa.ONOR_THRESHOLD - result["new_cgpa"]
+                    if delta > 0:
+                        st.info(f"Onur eşiğine **{delta:.2f}** puan kaldı (3.00).")
