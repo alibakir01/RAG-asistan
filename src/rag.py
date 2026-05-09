@@ -53,6 +53,8 @@ KURALLAR:
 10. Elektrik-Elektronik Mühendisliği için: 2019-2020 girişliler "2019" Capsule müfredatına, 2021-2024 girişliler "2021" Capsule müfredatına, 2025 ve sonrası girişliler "2025" müfredatına tabidir. EE programında 3. ve 4. sınıfta "Seçmeli Kapsüller" (Elective Capsules) havuzundan dersler seçilir.
 11. İnşaat Mühendisliği için: 2016-2020 girişliler "2016" müfredatına, 2021-2024 girişliler "2021" müfredatına, 2025 ve sonrası girişliler "2025" müfredatına tabidir.
 12. Malzeme Bilimi ve Nanoteknoloji Mühendisliği (MSNE) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat).
+13. Mimarlık (ARCH) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat). Eğitim dili İngilizce'dir.
+14. İşletme (BA) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat). Eğitim dili İngilizce'dir.
 """
 
 
@@ -178,32 +180,41 @@ LIST_TRIGGERS = [
     "dersler hangileri", "dersler neler", "listele",
 ]
 
-LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025"}
+LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025", "mimarlik": "2025", "isletme": "2025"}
 
 
 # --- Otomatik bölüm tespiti ---
 # Anahtar kelime / ders kodu eşleşmeleri. Eşleşme bulunursa bolum override edilir.
 BOLUM_KEYWORDS: dict[str, list[str]] = {
+    # Not: 2-3 harfli kod prefix'leri (ME/IE/EE/CE/BA/ARCH) "ME 201" gibi sorgular için
+    # zaten code-prefix regex'i ile yakalanıyor. Burada SADECE ayırt edici doğal dil
+    # kelimeleri tutuluyor (yoksa "işletme" → "me " false-positive gibi sorunlar olur).
     "malzeme": [
         "msne", "malzeme bilimi", "malzeme müh", "malzeme muh",
         "nanoteknoloji", "nano teknoloji",
     ],
     "bilgisayar": [
-        "comp ", "bilgisayar müh", "bilgisayar muh", "yazılım müh",
+        "bilgisayar müh", "bilgisayar muh", "yazılım müh",
         "yazilim muh", "computer eng",
     ],
     "makine": [
-        "me ", "makine müh", "makine muh", "mechanical eng", "mech eng",
+        "makine müh", "makine muh", "mechanical eng", "mech eng",
     ],
     "endustri": [
-        "ie ", "endüstri", "endustri", "industrial eng",
+        "endüstri", "endustri", "industrial eng",
     ],
     "elektrik": [
-        "ee ", "elektrik müh", "elektrik muh", "elektronik müh",
+        "elektrik müh", "elektrik muh", "elektronik müh",
         "elektronik muh", "electrical eng",
     ],
     "insaat": [
-        "ce ", "inşaat", "insaat", "civil eng",
+        "inşaat", "insaat", "civil eng",
+    ],
+    "mimarlik": [
+        "mimarlık", "mimarlik", "architecture",
+    ],
+    "isletme": [
+        "işletme", "isletme", "business administration", "business adm",
     ],
 }
 
@@ -215,8 +226,9 @@ def detect_bolum(question: str) -> str | None:
     code_prefixes = {
         "MSNE": "malzeme", "COMP": "bilgisayar", "ME": "makine",
         "IE": "endustri", "EE": "elektrik", "CE": "insaat",
+        "ARCH": "mimarlik", "BA": "isletme",
     }
-    code_match = re.search(r"\b(MSNE|COMP|ME|IE|EE|CE)\s*\d{2,4}\b", question.upper())
+    code_match = re.search(r"\b(MSNE|COMP|ARCH|ME|IE|EE|CE|BA)\s*\d{2,4}\b", question.upper())
     if code_match:
         return code_prefixes[code_match.group(1)]
     # 2) İsim tabanlı anahtar kelimeler
@@ -270,6 +282,12 @@ def parse_intent(question: str, bolum: str) -> dict | None:
                 mufredat_yili = "2025"
         elif bolum == "malzeme":
             # MSNE: tek aktif müfredat -> "2025" (tüm girişler)
+            mufredat_yili = "2025"
+        elif bolum == "mimarlik":
+            # ARCH: tek aktif müfredat -> "2025"
+            mufredat_yili = "2025"
+        elif bolum == "isletme":
+            # BA: tek aktif müfredat -> "2025"
             mufredat_yili = "2025"
         else:
             # Bilgisayar Mühendisliği:
@@ -457,6 +475,8 @@ BOLUM_ADI_MAP = {
     "elektrik": "Elektrik-Elektronik Mühendisliği",
     "insaat": "İnşaat Mühendisliği",
     "malzeme": "Malzeme Bilimi ve Nanoteknoloji Mühendisliği",
+    "mimarlik": "Mimarlık",
+    "isletme": "İşletme",
 }
 
 # Konuşma geçmişinden LLM'e geçirilecek maksimum mesaj sayısı (son N mesaj)

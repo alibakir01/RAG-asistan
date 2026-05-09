@@ -243,6 +243,53 @@ st.markdown(
         background: rgba(255,255,255,0.06) !important;
     }
 
+    /* ==== Selectbox DROPDOWN (popup) — tüm öğeler görünsün ==== */
+    /* Container — yeterli yükseklik ver, scroll yokken tüm öğeler sığsın */
+    [data-baseweb="popover"],
+    [data-baseweb="popover"] [role="listbox"],
+    [data-baseweb="popover"] ul,
+    [data-baseweb="menu"],
+    [data-baseweb="select-dropdown"] {
+        background: #1A1D24 !important;
+        border: 1px solid rgba(255,255,255,0.10) !important;
+        max-height: 600px !important;
+        overflow-y: auto !important;
+    }
+    /* Tüm dropdown öğeleri (li/option) — ZORUNLU GÖRÜNÜR */
+    [data-baseweb="popover"] [role="option"],
+    [data-baseweb="popover"] li,
+    [data-baseweb="menu"] li,
+    [data-baseweb="select-dropdown"] li {
+        color: rgba(255,255,255,0.92) !important;
+        background: transparent !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        padding: 10px 14px !important;
+        line-height: 1.4 !important;
+    }
+    /* Öğe içindeki text node (BaseWeb genelde <div> sarar) */
+    [data-baseweb="popover"] [role="option"] *,
+    [data-baseweb="menu"] li * {
+        color: inherit !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    [data-baseweb="popover"] [role="option"]:hover,
+    [data-baseweb="menu"] li:hover {
+        background: rgba(255,184,0,0.12) !important;
+        color: #FFE9C4 !important;
+    }
+    /* Aktif/seçili öğe — text görünür, sadece arka plan vurgulanır */
+    [data-baseweb="popover"] [role="option"][aria-selected="true"],
+    [data-baseweb="popover"] [role="option"][aria-checked="true"],
+    [data-baseweb="menu"] li[aria-selected="true"] {
+        background: rgba(194,24,91,0.18) !important;
+        color: #FFE9C4 !important;
+    }
+
     /* Info kutusu — özel kart */
     .info-card {
         background: linear-gradient(135deg, rgba(194,24,91,0.12), rgba(255,184,0,0.08));
@@ -497,6 +544,8 @@ with st.sidebar:
             "Elektrik-Elektronik Mühendisliği",
             "İnşaat Mühendisliği",
             "Malzeme Bilimi ve Nanoteknoloji Mühendisliği",
+            "Mimarlık",
+            "İşletme",
         ],
     )
     BOLUM_ID_MAP = {
@@ -506,6 +555,8 @@ with st.sidebar:
         "Elektrik-Elektronik Mühendisliği": "elektrik",
         "İnşaat Mühendisliği": "insaat",
         "Malzeme Bilimi ve Nanoteknoloji Mühendisliği": "malzeme",
+        "Mimarlık": "mimarlik",
+        "İşletme": "isletme",
     }
     BOLUM_SVG = {
         "bilgisayar": (
@@ -540,6 +591,23 @@ with st.sidebar:
             '<ellipse cx="12" cy="12" rx="10" ry="4"/>'
             '<ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/>'
             '<ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/>'
+            '</svg></span>'
+        ),
+        "mimarlik": (
+            '<span class="bolum-icon" title="Mimarlık">'
+            '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+            '<path d="M3 21h18"/>'
+            '<path d="M5 21V8l7-5 7 5v13"/>'
+            '<path d="M9 21v-6h6v6"/>'
+            '</svg></span>'
+        ),
+        "isletme": (
+            '<span class="bolum-icon" title="İşletme">'
+            '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+            '<path d="M3 21V8h18v13"/>'
+            '<path d="M9 21V12h6v9"/>'
+            '<path d="M3 8l9-5 9 5"/>'
+            '<path d="M7 16h2"/><path d="M15 16h2"/>'
             '</svg></span>'
         ),
     }
@@ -688,6 +756,18 @@ SUGGESTIONS = {
         ("🧩", "Müfredat hakkında bilgi"),
         ("📋", "Tüm dersleri listele"),
     ],
+    "mimarlik": [
+        ("📚", "1. sınıf mimarlık dersleri neler?"),
+        ("🏛️", "ARCH 101 dersinin içeriği nedir?"),
+        ("🧩", "ARCH 223 kaç kredi?"),
+        ("📋", "3. sınıf güz dönemi dersleri"),
+    ],
+    "isletme": [
+        ("📚", "1. sınıf işletme dersleri neler?"),
+        ("📊", "BA 207 Principles of Finance kaç AKTS?"),
+        ("🧩", "BA 222 ön şartı var mı?"),
+        ("📋", "3. sınıf güz dönemi dersleri"),
+    ],
 }
 
 with chat_tab:
@@ -764,7 +844,12 @@ def _render_rating(msg_idx: int, m: dict):
             st.rerun()
 
 
+# ============================ CHAT — TEMİZ RERUN PATTERN ============================
+# Sıra: history → (varsa) yeni turn → chat_input (en altta).
+# Submit olduğunda _processing_q flag'i set edip st.rerun() yapıyoruz; bir sonraki
+# çalıştırmada eski DOM tamamen yenilenir, ghost element kalmaz.
 with chat_tab:
+    # 1) Geçmiş mesajları render et
     for idx, m in enumerate(st.session_state["messages"]):
         avatar = "🧑‍🎓" if m["role"] == "user" else "🎓"
         with st.chat_message(m["role"], avatar=avatar):
@@ -773,14 +858,10 @@ with chat_tab:
                 _render_sources(m.get("hits", []), key_prefix=f"hist-{idx}")
                 _render_rating(idx, m)
 
-# ============================ CHAT INPUT ============================
-with chat_tab:
-    q = st.chat_input("Örn: 2023 girişliyim 3. dönem hangi dersler var?")
-    if not q and "pending_q" in st.session_state:
-        q = st.session_state.pop("pending_q")
-
-    if q:
-        # Otomatik bölüm tespiti — soruda spesifik anahtar kelime varsa bolum'u override et
+    # 2) Bekleyen bir soru varsa: yeni turn'ü tarihçenin hemen altına stream'le
+    pending = st.session_state.pop("_processing_q", None)
+    if pending:
+        q = pending
         detected = detect_bolum(q)
         effective_bolum = detected if detected and detected != bolum_id else bolum_id
         auto_switched = detected is not None and detected != bolum_id
@@ -795,7 +876,6 @@ with chat_tab:
                     icon="ℹ️",
                 )
 
-        # Geçmişi LLM için hazırla
         history_for_rag = [
             {"role": m["role"], "content": m["content"]}
             for m in st.session_state["messages"][:-1]
@@ -809,26 +889,33 @@ with chat_tab:
             try:
                 cached = get_cached(q, top_k, effective_bolum, history_json)
                 if cached:
-                    # Cache hit — anında render
                     st.markdown(cached["answer"])
                     final_text = cached["answer"]
                     final_hits = cached["hits"]
                 else:
-                    with st.spinner("✨ Düşünüyorum..."):
-                        result = answer_stream(q, k=top_k, bolum=effective_bolum, history=history_for_rag)
+                    # Spinner için explicit placeholder — stream başlamadan ÖNCE temizlenir
+                    status_ph = st.empty()
+                    status_ph.markdown(
+                        '<div style="display:flex;align-items:center;gap:8px;'
+                        'opacity:0.75;font-size:0.95rem;">'
+                        '<span class="thinking-dot">●</span> '
+                        '<em>Düşünüyorum…</em></div>'
+                        '<style>.thinking-dot{animation:pulse 1.2s ease-in-out infinite;'
+                        'color:#FFB800;}@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}</style>',
+                        unsafe_allow_html=True,
+                    )
+                    result = answer_stream(q, k=top_k, bolum=effective_bolum, history=history_for_rag)
+                    status_ph.empty()  # spinner'ı KESİN sil — stream başlamadan önce
                     final_hits = result["hits"]
                     if result["mode"] == "llm":
-                        # Token-by-token render
                         final_text = st.write_stream(result["token_iter"])
                     else:
-                        # list / compare — deterministik tam metin
                         st.markdown(result["text"])
                         final_text = result["text"]
                     set_cached(q, top_k, effective_bolum, history_json, {
                         "answer": final_text, "hits": final_hits,
                     })
 
-                # Mesajı kaydet (rating UI için ek alanlar dahil)
                 st.session_state["messages"].append({
                     "role": "assistant",
                     "content": final_text,
@@ -841,6 +928,14 @@ with chat_tab:
                 _render_rating(len(st.session_state["messages"]) - 1, st.session_state["messages"][-1])
             except Exception as e:
                 st.error(f"⚠️ Hata: {e}")
+
+    # 3) Chat input — her zaman EN ALTTA (DOM sırasının sonunda)
+    new_q = st.chat_input("Örn: 2023 girişliyim 3. dönem hangi dersler var?")
+    pending_from_suggestion = st.session_state.pop("pending_q", None)
+    submission = new_q or pending_from_suggestion
+    if submission:
+        st.session_state["_processing_q"] = submission
+        st.rerun()
 
 
 # ============================ GPA TAB ============================

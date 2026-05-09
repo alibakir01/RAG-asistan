@@ -1,0 +1,63 @@
+Kategori,Ders Kodu,Ders Adı,Ön Koşul,Teori,Lab.,Kredi,AKTS,Bölüm içi/Bölüm dışı seçmeli
+General Transfer Seçmelileri,BAG491,General Transfer Elective 1,,3,0,3,3,Bölüm Dışı seçmeli
+General Transfer Seçmelileri,BAG492,General Transfer Elective 2,,3,0,3,4,Bölüm Dışı seçmeli
+General Transfer Seçmelileri,BAG493,General Transfer Elective 3,,3,0,3,4,Bölüm Dışı seçmeli
+General Transfer Seçmelileri,BAG494,General Transfer Elective 4,,3,0,3,4,Bölüm Dışı seçmeli
+Exchange Transfer Seçmelileri,BA491,Exchange Transfer Elective 1,,3,0,3,5,Bölüm içi Seçmeli
+Exchange Transfer Seçmelileri,BA492,Exchange Transfer Elective 2,,3,0,3,5,Bölüm içi Seçmeli
+Exchange Transfer Seçmelileri,BA493,Exchange Transfer Elective 3,,3,0,3,5,Bölüm içi Seçmeli
+Bölüm İçi Diğer Seçmeli Dersler,BA352,Sustainable Tourism,,3,0,3,5,Bölüm içi Seçmeli
+Bölüm İçi Diğer Seçmeli Dersler,BA409,Tax Law and Turkish Tax Law System,,3,0,3,5,Bölüm içi Seçmeli
+Bölüm İçi Diğer Seçmeli Dersler,BA430,Tourism Management,,3,0,3,5,Bölüm içi Seçmeli
+Bölüm İçi Diğer Seçmeli Dersler,BA453,Corporate Law,,3,0,3,5,Bölüm içi Seçmeli
+Bölüm İçi Diğer Seçmeli Dersler,BA460,Entrepreneurship for Engineers and Scientists,,3,0,3,5,Bölüm içi Seçmeli
+Bölüm İçi Diğer Seçmeli Dersler,BA463,Volunteerism,,3,0,3,5,Bölüm içi Seçmeli
+Bölüm İçi Diğer Seçmeli Dersler,BA473,Turkish Labor Law,,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA426,Project Management,,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA433,Supply Chain Management,,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA434,Decision Making,,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA437,Business Analytics,,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA441,Quality Management,,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA442,Data Models and Decisions,BA 208,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA444,Revenue Management,BA 208,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA446,Introduction to Python Programming,,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA450,Industry 4.0 Technologies,,3,0,3,5,Bölüm içi Seçmeli
+Sayısal Yöntemler Alanındaki Seçmeli Dersler,BA458,Use of Business Intelligence,BA 303,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA412,Human Resource Management,,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA440,Managerial Communication,,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA443,Cross Cultural Management,,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA445,Negotiation and Organizational Conflict Resolution,,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA449,Corporate Communication,,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA452,Interpersonal Skills in Organizations,,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA455,Understanding and Leading Organizational Change,BA 301,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA456,Leadership and Management,BA 301,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA457,Applied Entrepreneurship,,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA459,Alternative Dispute Resolution,,3,0,3,5,Bölüm içi Seçmeli
+Yönetim ve Organizasyon Alanındaki Seçmeli Dersler,BA475,Corporate Strategy,,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA329,Brand Value Creation and Maximization,,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA331,Essentials of Digital Marketing,BA 203,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA344,Consumer Behavior,,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA346,Basic Principles of Patent Practice,,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA348,Service Marketing,BA 203 veya BA471,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA350,Retail Management,BA 203,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA429,Technology Management,,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA436,Non Market Strategy,BA 203,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA438,Modern Manufacturing System,BA 303,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA439,Global Marketing,,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA447,New Product Development,BA 203,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA448,Strategic Brand Management,,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA454,New Media,,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA461,SME Marketing,,3,0,3,5,Bölüm içi Seçmeli
+Üretim Yönetimi ve Pazarlama Alanındaki Seçmeli Dersler,BA471,Principles of Marketing for Non-Business Majors,,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA323,Risk Management,,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA407,Financial Derivatives,BA 207,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA414,Auditing,BA 205,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA415,Cost Accounting,,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA428,Financial Statement Analysis,BA 205 veya BA462,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA431,Financial Modelling,BA 207,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA432,Modern Banking,,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA435,Small and Medium Enterprises (SME) Finance,,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA462,Introduction to Finance for Non-Business Majors,,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA465,Corporate Finance,BA 207,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA467,Financial Markets and Institutions,,3,0,3,5,Bölüm içi Seçmeli
+Muhasebe ve Finans Alanındaki Seçmeli Dersler,BA469,Valuation Models and Applications,BA 207 veya BA462,3,0,3,5,Bölüm içi Seçmeli
