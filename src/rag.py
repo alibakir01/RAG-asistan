@@ -46,6 +46,8 @@ KURALLAR:
 3. Cevabı verirken hangi kaynağı kullandığını belirt (örn: "2023 müfredatına göre...", "Staj Yönergesi MADDE 10'a göre...").
 4. Ders kodu, AKTS, dönem gibi sayısal bilgileri aynen aktar.
 5. Samimi, öğrenci dostu bir ton kullan ama doğruluktan ödün verme.
+5a. CEVAP UZUNLUĞU: Soru kapsamlıysa (örn. "Erasmus şartları", "staj süreci", "yatay geçiş nasıl olur") bağlamdaki TÜM ilgili maddeleri / şartları / detayları cevabın gövdesinde tek tek say. Kullanıcı kaynakları okumak zorunda kalmasın — önemli sayısal kriterler (ör. "AKTS ≥ 75/100", "not ortalaması ≥ 2.50/4.00", "ön şart: COMP 101"), MADDE numaraları, ders kodları, e-posta vb. cevabın İÇİNDE geçsin. Madde işaretleri (•/-) ve kısa alt başlıklar kullanmaktan çekinme.
+5b. Kısa tutman gereken durumlar: Tek bir gerçek sorulduğunda (ör. "BA499 kaç AKTS?", "ön şartı ne?") tek satır yeterlidir.
 6. Makine Mühendisliği için: 2022, 2023, 2024 ve 2025 girişli öğrenciler "2025" müfredatına tabidir. 2021 ve öncesi girişliler "2021" müfredatına tabidir.
 7. Endüstri Mühendisliği için: 2016-2020 girişliler "2016" müfredatına, 2021-2024 girişliler "2021" müfredatına, 2025 ve sonrası "2025" müfredatına tabidir.
 8. Bilgisayar Mühendisliği için: 2016-2020 girişliler "2016" müfredatına, 2021-2022 girişliler "2021" müfredatına, 2023-2024 girişliler "2023" müfredatına, 2025 ve sonrası "2025" müfredatına tabidir.
@@ -180,7 +182,7 @@ LIST_TRIGGERS = [
     "dersler hangileri", "dersler neler", "listele",
 ]
 
-LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025", "mimarlik": "2025", "isletme": "2025"}
+LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025", "mimarlik": "2025", "isletme": "2025", "ekonomi": "2025"}
 
 
 # --- Otomatik bölüm tespiti ---
@@ -216,6 +218,9 @@ BOLUM_KEYWORDS: dict[str, list[str]] = {
     "isletme": [
         "işletme", "isletme", "business administration", "business adm",
     ],
+    "ekonomi": [
+        "ekonomi", "iktisat", "economics", "econ",
+    ],
 }
 
 
@@ -226,9 +231,9 @@ def detect_bolum(question: str) -> str | None:
     code_prefixes = {
         "MSNE": "malzeme", "COMP": "bilgisayar", "ME": "makine",
         "IE": "endustri", "EE": "elektrik", "CE": "insaat",
-        "ARCH": "mimarlik", "BA": "isletme",
+        "ARCH": "mimarlik", "BA": "isletme", "ECON": "ekonomi",
     }
-    code_match = re.search(r"\b(MSNE|COMP|ARCH|ME|IE|EE|CE|BA)\s*\d{2,4}\b", question.upper())
+    code_match = re.search(r"\b(MSNE|COMP|ARCH|ECON|ME|IE|EE|CE|BA)\s*\d{2,4}\b", question.upper())
     if code_match:
         return code_prefixes[code_match.group(1)]
     # 2) İsim tabanlı anahtar kelimeler
@@ -288,6 +293,9 @@ def parse_intent(question: str, bolum: str) -> dict | None:
             mufredat_yili = "2025"
         elif bolum == "isletme":
             # BA: tek aktif müfredat -> "2025"
+            mufredat_yili = "2025"
+        elif bolum == "ekonomi":
+            # ECON: tek aktif müfredat -> "2025"
             mufredat_yili = "2025"
         else:
             # Bilgisayar Mühendisliği:
@@ -477,6 +485,7 @@ BOLUM_ADI_MAP = {
     "malzeme": "Malzeme Bilimi ve Nanoteknoloji Mühendisliği",
     "mimarlik": "Mimarlık",
     "isletme": "İşletme",
+    "ekonomi": "Ekonomi",
 }
 
 # Konuşma geçmişinden LLM'e geçirilecek maksimum mesaj sayısı (son N mesaj)
@@ -506,7 +515,7 @@ def _llm_answer(question: str, hits: list[dict], bolum: str,
     client = Groq()
     resp = client.chat.completions.create(
         model=LLM_MODEL,
-        max_tokens=1024,
+        max_tokens=1800,
         temperature=0.2,
         messages=[
             {"role": "system", "content": sys_prompt},
@@ -736,12 +745,15 @@ def _llm_stream_chunks(question: str, hits: list[dict], bolum: str,
         "Yukarıdaki bağlamı kullanarak Türkçe cevap ver. "
         "Önceki konuşma akışını dikkate al (kullanıcı kısa takip soruları sorabilir). "
         f"{prompt_extra}"
+        "ÖNEMLİ: Soru kapsamlıysa (şartlar/süreç/yönerge/liste) bağlamdaki tüm ilgili "
+        "kriterleri, sayıları, MADDE'leri ve detayları cevabın gövdesinde madde madde yaz; "
+        "kullanıcı 'Kaynaklar' bölümünü açmadan tam cevabı görsün. "
         "Kaynak belirt."
     )
     client = Groq()
     stream = client.chat.completions.create(
         model=LLM_MODEL,
-        max_tokens=1024,
+        max_tokens=1800,
         temperature=0.2,
         stream=True,
         messages=[
@@ -826,6 +838,9 @@ def _llm_messages(question: str, hits: list[dict], bolum: str,
                 "Yukarıdaki bağlamı kullanarak Türkçe cevap ver. "
                 "Önceki konuşma akışını dikkate al (kullanıcı kısa takip soruları sorabilir). "
                 "Eğer ön şart soruluyorsa BAĞLAM'daki 'Ön şart:' alanına bak. "
+                "ÖNEMLİ: Soru kapsamlıysa (şartlar/süreç/yönerge/liste) bağlamdaki tüm ilgili "
+                "kriterleri, sayıları, MADDE'leri ve detayları cevabın gövdesinde madde madde "
+                "yaz; kullanıcı 'Kaynaklar' bölümünü açmadan tam cevabı görsün. "
                 "Kaynak belirt."
             ),
         },
@@ -894,7 +909,7 @@ def _make_llm_stream(question: str, hits: list[dict], bolum: str,
         client = Groq()
         stream = client.chat.completions.create(
             model=LLM_MODEL,
-            max_tokens=1024,
+            max_tokens=1800,
             temperature=0.2,
             messages=messages,
             stream=True,
@@ -957,7 +972,7 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
     client = Groq()
     resp = client.chat.completions.create(
         model=LLM_MODEL,
-        max_tokens=1024,
+        max_tokens=1800,
         temperature=0.2,
         messages=[
             {"role": "system", "content": sys_prompt},

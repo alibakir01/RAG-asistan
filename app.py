@@ -125,6 +125,22 @@ st.markdown(
 
     html, body, [class*="css"] {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-rendering: optimizeLegibility !important;
+    }
+    /* BaseWeb portal'ları (popover/dropdown) body dışında render edilir — onlara da uygula */
+    [data-baseweb="popover"],
+    [data-baseweb="popover"] *,
+    [data-baseweb="menu"],
+    [data-baseweb="menu"] *,
+    [data-baseweb="select-dropdown"],
+    [data-baseweb="select-dropdown"] * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-rendering: optimizeLegibility !important;
+        backdrop-filter: none !important;
     }
 
     .stApp {
@@ -255,39 +271,63 @@ st.markdown(
         max-height: 600px !important;
         overflow-y: auto !important;
     }
-    /* Tüm dropdown öğeleri (li/option) — ZORUNLU GÖRÜNÜR */
+    /* Tüm dropdown öğeleri (li/option) — ZORUNLU GÖRÜNÜR + NET */
     [data-baseweb="popover"] [role="option"],
     [data-baseweb="popover"] li,
     [data-baseweb="menu"] li,
     [data-baseweb="select-dropdown"] li {
-        color: rgba(255,255,255,0.92) !important;
+        color: #FFFFFF !important;
         background: transparent !important;
         font-weight: 500 !important;
-        font-size: 0.9rem !important;
+        font-size: 0.95rem !important;
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
-        padding: 10px 14px !important;
-        line-height: 1.4 !important;
+        padding: 11px 14px !important;
+        line-height: 1.45 !important;
+        letter-spacing: 0.01em !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-rendering: optimizeLegibility !important;
+        text-shadow: none !important;
+        filter: none !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
     /* Öğe içindeki text node (BaseWeb genelde <div> sarar) */
     [data-baseweb="popover"] [role="option"] *,
-    [data-baseweb="menu"] li * {
-        color: inherit !important;
+    [data-baseweb="menu"] li *,
+    [data-baseweb="select-dropdown"] li * {
+        color: #FFFFFF !important;
         opacity: 1 !important;
         visibility: visible !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-shadow: none !important;
+        filter: none !important;
     }
     [data-baseweb="popover"] [role="option"]:hover,
     [data-baseweb="menu"] li:hover {
-        background: rgba(255,184,0,0.12) !important;
+        background: rgba(255,184,0,0.14) !important;
         color: #FFE9C4 !important;
     }
-    /* Aktif/seçili öğe — text görünür, sadece arka plan vurgulanır */
+    [data-baseweb="popover"] [role="option"]:hover *,
+    [data-baseweb="menu"] li:hover * {
+        color: #FFE9C4 !important;
+    }
+    /* Aktif/seçili öğe — text NET görünür */
     [data-baseweb="popover"] [role="option"][aria-selected="true"],
     [data-baseweb="popover"] [role="option"][aria-checked="true"],
     [data-baseweb="menu"] li[aria-selected="true"] {
-        background: rgba(194,24,91,0.18) !important;
-        color: #FFE9C4 !important;
+        background: rgba(194,24,91,0.22) !important;
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
+    }
+    [data-baseweb="popover"] [role="option"][aria-selected="true"] *,
+    [data-baseweb="menu"] li[aria-selected="true"] * {
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
     }
 
     /* Info kutusu — özel kart */
@@ -546,6 +586,7 @@ with st.sidebar:
             "Malzeme Bilimi ve Nanoteknoloji Mühendisliği",
             "Mimarlık",
             "İşletme",
+            "Ekonomi",
         ],
     )
     BOLUM_ID_MAP = {
@@ -557,6 +598,7 @@ with st.sidebar:
         "Malzeme Bilimi ve Nanoteknoloji Mühendisliği": "malzeme",
         "Mimarlık": "mimarlik",
         "İşletme": "isletme",
+        "Ekonomi": "ekonomi",
     }
     BOLUM_SVG = {
         "bilgisayar": (
@@ -608,6 +650,13 @@ with st.sidebar:
             '<path d="M9 21V12h6v9"/>'
             '<path d="M3 8l9-5 9 5"/>'
             '<path d="M7 16h2"/><path d="M15 16h2"/>'
+            '</svg></span>'
+        ),
+        "ekonomi": (
+            '<span class="bolum-icon" title="Ekonomi">'
+            '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+            '<path d="M3 17l6-6 4 4 8-8"/>'
+            '<path d="M14 7h7v7"/>'
             '</svg></span>'
         ),
     }
@@ -767,6 +816,12 @@ SUGGESTIONS = {
         ("📊", "BA 207 Principles of Finance kaç AKTS?"),
         ("🧩", "BA 222 ön şartı var mı?"),
         ("📋", "3. sınıf güz dönemi dersleri"),
+    ],
+    "ekonomi": [
+        ("📚", "1. sınıf ekonomi dersleri neler?"),
+        ("📈", "ECON 201 Microeconomics I ön şartı nedir?"),
+        ("🧩", "ECON 301 Econometrics I kaç AKTS?"),
+        ("📋", "3. sınıf güz dönemi ekonomi dersleri"),
     ],
 }
 
