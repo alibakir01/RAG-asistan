@@ -10,6 +10,8 @@ Müfredat, ders içerikleri, staj yönergesi ve internship handbook sorularını
 - Elektrik-Elektronik Mühendisliği
 - İnşaat Mühendisliği
 - Malzeme Bilimi ve Nanoteknoloji Mühendisliği
+- Mimarlık
+- İşletme
 
 ## Pipeline
 1. `src/ingest.py` (+ `ingest_me.py`, `ingest_elektrik.py`, `ingest_endustri.py`, `ingest_insaat.py`, `ingest_glb.py`) — ham dokümanları (docx, pdf, csv, xlsx) yapılandırılmış chunk'lara çevirir → `data/processed/*.jsonl`
