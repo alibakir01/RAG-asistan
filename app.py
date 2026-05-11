@@ -24,19 +24,27 @@ from src.rag import BOLUM_ADI_MAP, answer_stream, detect_bolum
 # ============================ MODEL WARMUP ============================
 # Embedder + reranker + BM25 indeksleri arka planda preload — ilk sorguda
 # 5-15 saniye bekleme yerine kullanıcı yazarken paralel yüklensin.
+# Dummy encode/predict çağrılarıyla model weights'i RAM/GPU'ya gerçekten yükler.
 @st.cache_resource(show_spinner=False)
 def _warmup_models():
     import threading
-    from src.rag import _get_embedder, _get_reranker, _get_bm25, BOLUM_ADI_MAP
+    from src.rag import (
+        _get_embedder, _get_reranker, _get_bm25, BOLUM_ADI_MAP,
+    )
 
     def _load():
         try:
-            _get_embedder()
-            _get_reranker()
+            emb = _get_embedder()
+            # Dummy encode — modeli RAM'e yükle ve ilk forward pass'i tetikle
+            emb.encode(["query: warmup"], normalize_embeddings=True)
+            rer = _get_reranker()
+            # Dummy predict — reranker weights'i de yükle
+            rer.predict([("warmup", "doc")])
+            # BM25 indekslerini paralel yükle
             for bolum in BOLUM_ADI_MAP.keys():
                 _get_bm25(bolum)
         except Exception:
-            pass  # warmup hatası UI'yı durdurmasın
+            pass
 
     t = threading.Thread(target=_load, daemon=True)
     t.start()
@@ -839,6 +847,127 @@ with chat_tab:
                     st.session_state["pending_q"] = text
                     st.rerun()
 
+# ============================ FOLLOW-UP CHIP'LERİ ============================
+import re as _re
+
+_COURSE_CODE_RE = _re.compile(r"\b([A-Z]{2,5})\s*(\d{2,4})\b")
+
+# Kategori bazlı öneri havuzu (her birinde 4+ aday var, 3'ü seçilir)
+_FOLLOWUP_POOL = {
+    "ders_kodu": [
+        ("📊", "AKTS'si kaç?", "akts"),
+        ("🧩", "Ön şartı ne?", "ön şart"),
+        ("📅", "Hangi dönemde alınır?", "dönem"),
+        ("📖", "İçeriği nedir?", "içerik"),
+        ("👨‍🏫", "Hocası kim?", "hoca"),
+        ("🔢", "Kredi sayısı?", "kredi"),
+    ],
+    "donem": [
+        ("📊", "Toplam AKTS kaç?", "toplam akts"),
+        ("🔄", "Bir önceki dönem dersleri neler?", "önceki dönem"),
+        ("🔜", "Bir sonraki dönem dersleri neler?", "sonraki dönem"),
+        ("🎯", "Seçmeli dersler hangileri?", "seçmeli"),
+        ("📝", "Bu dönemde ön şartlı dersler var mı?", "ön şartl"),
+    ],
+    "staj": [
+        ("📆", "Kaç iş günü?", "iş günü"),
+        ("📊", "Kaç AKTS?", "akts"),
+        ("🔑", "Ön koşul nedir?", "ön koşul"),
+        ("📋", "Değerlendirme nasıl yapılır?", "değerlendirme"),
+        ("📑", "Hangi formlar gerekli?", "form"),
+    ],
+    "erasmus": [
+        ("📊", "Minimum not ortalaması kaç?", "not ortalama"),
+        ("📅", "Başvuru ne zaman yapılır?", "başvuru"),
+        ("📄", "Gerekli evraklar neler?", "evrak"),
+        ("🌍", "Hangi okullarla anlaşmamız var?", "anlaşma"),
+        ("🏛️", "Erasmus dil şartı nedir?", "dil şart"),
+    ],
+    "yatay_gecis": [
+        ("📊", "Minimum AKTS şartı?", "akts şart"),
+        ("📅", "Ne zaman başvurulur?", "başvuru"),
+        ("📊", "GNO şartı kaç?", "gno"),
+        ("📄", "Gerekli belgeler neler?", "belge"),
+    ],
+    "secmeli": [
+        ("📋", "Tüm seçmeli dersler hangileri?", "seçmeli dersler"),
+        ("🔢", "Kaç tane seçmeli almalıyım?", "kaç tane seçmeli"),
+        ("📊", "Seçmelilerin AKTS'leri?", "seçmeli akts"),
+    ],
+    "genel": [
+        ("📚", "Müfredat hakkında daha detay?", "müfredat detay"),
+        ("📅", "Akademik takvim nedir?", "akademik takvim"),
+        ("🎓", "Mezuniyet için kaç AKTS?", "mezuniyet"),
+        ("📋", "Staj zorunlu mu?", "staj zorunlu"),
+    ],
+}
+
+
+def _classify_question(q: str) -> str:
+    """Soruyu kategorize et — uygun öneri havuzunu seçmek için."""
+    ql = (q or "").lower()
+    if "erasmus" in ql:
+        return "erasmus"
+    if "yatay" in ql or "geçiş" in ql or "gecis" in ql:
+        return "yatay_gecis"
+    if "staj" in ql:
+        return "staj"
+    if "seçmeli" in ql or "secmeli" in ql or "elective" in ql:
+        return "secmeli"
+    if "dönem" in ql or "donem" in ql or "yıl" in ql or "sınıf" in ql or "sinif" in ql:
+        return "donem"
+    if _COURSE_CODE_RE.search(q.upper() if q else ""):
+        return "ders_kodu"
+    return "genel"
+
+
+def _suggest_followups(question: str, answer: str) -> list[tuple[str, str]]:
+    """Son soru ve cevaba bakarak 3 follow-up önerisi üretir.
+    Cevabın zaten kapsadığı önerileri eler."""
+    if not question:
+        return []
+    category = _classify_question(question)
+    pool = _FOLLOWUP_POOL.get(category, _FOLLOWUP_POOL["genel"])
+    answer_low = (answer or "").lower()
+
+    suggestions: list[tuple[str, str]] = []
+    for icon, text, marker in pool:
+        # Cevap zaten bu konuyu kapsıyorsa atla
+        if marker and marker.lower() in answer_low:
+            continue
+        suggestions.append((icon, text))
+        if len(suggestions) >= 3:
+            break
+
+    # Eğer 3'e ulaşılamadıysa havuzdan tekrar ekle (filtresiz)
+    if len(suggestions) < 3:
+        for icon, text, _ in pool:
+            if (icon, text) not in suggestions:
+                suggestions.append((icon, text))
+            if len(suggestions) >= 3:
+                break
+    return suggestions[:3]
+
+
+def _render_followups(question: str, answer: str, key_prefix: str):
+    """3 chip render et. Tıklayınca pending_q set + rerun."""
+    suggestions = _suggest_followups(question, answer)
+    if not suggestions:
+        return
+    st.markdown(
+        '<div style="margin-top:6px;font-size:0.78rem;opacity:0.6;'
+        'letter-spacing:0.02em;">💡 Devam etmek için:</div>',
+        unsafe_allow_html=True,
+    )
+    cols = st.columns(len(suggestions))
+    for i, (icon, text) in enumerate(suggestions):
+        with cols[i]:
+            if st.button(f"{icon} {text}", key=f"fup-{key_prefix}-{i}",
+                         use_container_width=True):
+                st.session_state["pending_q"] = text
+                st.rerun()
+
+
 # ============================ MESAJ GEÇMİŞİ ============================
 def _render_sources(hits: list[dict], key_prefix: str):
     if not hits:
@@ -905,7 +1034,8 @@ def _render_rating(msg_idx: int, m: dict):
 # çalıştırmada eski DOM tamamen yenilenir, ghost element kalmaz.
 with chat_tab:
     # 1) Geçmiş mesajları render et
-    for idx, m in enumerate(st.session_state["messages"]):
+    msgs = st.session_state["messages"]
+    for idx, m in enumerate(msgs):
         avatar = "🧑‍🎓" if m["role"] == "user" else "🎓"
         with st.chat_message(m["role"], avatar=avatar):
             st.markdown(m["content"])

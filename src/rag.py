@@ -20,13 +20,136 @@ from groq import Groq
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
+# .env'i import sırasında yükle — modül CLI/eval/external script'lerden import
+# edildiğinde GROQ_API_KEY otomatik gelsin (önceden sadece app.py yüklüyordu).
+try:
+    from dotenv import load_dotenv  # type: ignore
+    load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+except Exception:
+    pass
+
 ROOT = Path(__file__).resolve().parents[1]
 CHROMA_DIR = ROOT / "data" / "chroma"
 PROCESSED_DIR = ROOT / "data" / "processed"
 MODEL_NAME = "intfloat/multilingual-e5-large"
 COLLECTION = "agu_comp"
-LLM_MODEL = "llama-3.3-70b-versatile"  # Groq'ta bedava, Türkçesi iyi
+
+# LLM sağlayıcısı: "groq" (varsayılan) veya "openrouter"
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "groq").lower().strip()
+LLM_MODEL_GROQ = "llama-3.3-70b-versatile"
+LLM_MODEL_OPENROUTER = os.getenv("OPENROUTER_MODEL", "openai/gpt-oss-120b:free")
+LLM_MODEL = LLM_MODEL_OPENROUTER if LLM_PROVIDER == "openrouter" else LLM_MODEL_GROQ
+
 TOP_K = 8
+
+
+# ===================== LLM Provider Abstraction =====================
+
+def _get_openrouter_client():
+    from openai import OpenAI  # type: ignore
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENROUTER_API_KEY .env'de tanımlı değil.")
+    return OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=api_key,
+        default_headers={
+            "HTTP-Referer": os.getenv("OPENROUTER_REFERER", "https://github.com/agu-rag"),
+            "X-Title": os.getenv("OPENROUTER_TITLE", "AGU RAG Asistan"),
+        },
+    )
+
+
+def _llm_stream_groq(messages: list[dict], max_tokens: int = 1800, temperature: float = 0.2):
+    """Groq stream — provider çağrısı."""
+    from groq import Groq
+    client = Groq()
+    stream = client.chat.completions.create(
+        model=LLM_MODEL_GROQ, max_tokens=max_tokens, temperature=temperature,
+        messages=messages, stream=True,
+    )
+    for chunk in stream:
+        delta = chunk.choices[0].delta.content if chunk.choices else None
+        if delta:
+            yield delta
+
+
+def _llm_stream_openrouter(messages: list[dict], max_tokens: int = 1800, temperature: float = 0.2):
+    """OpenRouter stream — provider çağrısı."""
+    client = _get_openrouter_client()
+    stream = client.chat.completions.create(
+        model=LLM_MODEL_OPENROUTER, max_tokens=max_tokens, temperature=temperature,
+        messages=messages, stream=True,
+    )
+    for chunk in stream:
+        if not chunk.choices:
+            continue
+        delta = chunk.choices[0].delta.content if chunk.choices[0].delta else None
+        if delta:
+            yield delta
+
+
+def _llm_stream(messages: list[dict], max_tokens: int = 1800, temperature: float = 0.2):
+    """Provider-agnostic streaming.
+
+    LLM_PROVIDER değerleri:
+      - "groq": Sadece Groq (varsayılan)
+      - "openrouter": Sadece OpenRouter
+      - "auto": Groq dene, 429/hata olursa OpenRouter'a düş (Groq daha hızlıdır,
+        kotası varsa kullan; bittiyse seamless geçiş)
+    """
+    if LLM_PROVIDER == "auto":
+        # Groq'u dene; başaramazsa OpenRouter
+        try:
+            # İlk chunk'a kadar wrap'leyip Groq'u test et — kotayı 1. token öğreniriz
+            buf = []
+            for chunk in _llm_stream_groq(messages, max_tokens, temperature):
+                buf.append(chunk)
+                yield chunk
+            return
+        except Exception as e:
+            err = str(e)
+            if "429" in err or "rate" in err.lower() or "quota" in err.lower():
+                # Henüz buffer'a yazılmış chunk olabilir — ama yield ettik, geri alamayız.
+                # Best practice: ilk denemede hiç chunk almadıysak OpenRouter'a düşelim.
+                if not buf:
+                    yield from _llm_stream_openrouter(messages, max_tokens, temperature)
+                    return
+                raise
+            raise
+
+    if LLM_PROVIDER == "openrouter":
+        yield from _llm_stream_openrouter(messages, max_tokens, temperature)
+        return
+
+    # Default: Groq
+    yield from _llm_stream_groq(messages, max_tokens, temperature)
+
+
+def _llm_complete(messages: list[dict], max_tokens: int = 1800, temperature: float = 0.2) -> str:
+    """Provider-agnostic non-streaming completion."""
+    if LLM_PROVIDER == "openrouter":
+        client = _get_openrouter_client()
+        resp = client.chat.completions.create(
+            model=LLM_MODEL_OPENROUTER,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            messages=messages,
+        )
+        return resp.choices[0].message.content or ""
+
+    from groq import Groq
+    client = Groq()
+    resp = client.chat.completions.create(
+        model=LLM_MODEL_GROQ,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        messages=messages,
+    )
+    return resp.choices[0].message.content or ""
+
+# =====================================================================
+
 
 # Hibrit retrieval ayarları
 HYBRID_VECTOR_K = 20   # vektör adayları
@@ -42,7 +165,12 @@ SYSTEM_PROMPT = """Sen Abdullah Gül Üniversitesi {bolum_adi} bölümü için b
 
 KURALLAR:
 1. Sadece sana verilen BAĞLAM içindeki bilgilere dayanarak cevap ver.
-2. Bağlamda olmayan bir şey sorulursa "Bu bilgi elimdeki dokümanlarda yok" de — UYDURMA.
+2. Bağlamda olmayan bir şey sorulursa **ASLA UYDURMA**. Bunun yerine şu şablonu kullan:
+
+   > "Bu bilgi elimdeki dokümanlarda yok. Şu kaynaklara bakabilirsin:
+   > • {bolum_kaynak}"
+
+   Eğer kısmi bilgi varsa, önce sahip olduğun bilgiyi ver, sonra eksik kalan kısım için bu kaynakları öner. Kullanıcıyı boş bırakma — yönlendir.
 3. Cevabı verirken hangi kaynağı kullandığını belirt (örn: "2023 müfredatına göre...", "Staj Yönergesi MADDE 10'a göre...").
 4. Ders kodu, AKTS, dönem gibi sayısal bilgileri aynen aktar.
 5. Samimi, öğrenci dostu bir ton kullan ama doğruluktan ödün verme.
@@ -140,7 +268,9 @@ def bm25_search(question: str, bolum: str, k: int = HYBRID_BM25_K) -> list[dict]
     bm25, chunks = _get_bm25(bolum)
     if bm25 is None or not chunks:
         return []
-    tokens = _tokenize(question)
+    # BM25 token-bazlı çalışır — alias'lar genişletilmiş sorguya eklenir
+    expanded = _expand_query_with_aliases(question)
+    tokens = _tokenize(expanded)
     if not tokens:
         return []
     scores = bm25.get_scores(tokens)
@@ -392,14 +522,198 @@ def _expand_query_with_history(question: str, history: list[dict] | None) -> str
     return " ".join(prev_users + [question])
 
 
+def _tr_normalize(s: str) -> str:
+    """Türkçe karakterleri ASCII'ye indir + lower-case. Eşleşmede kullanılır."""
+    tr_map = str.maketrans({
+        "ş": "s", "Ş": "s", "ğ": "g", "Ğ": "g",
+        "ı": "i", "I": "i", "İ": "i",
+        "ü": "u", "Ü": "u", "ö": "o", "Ö": "o",
+        "ç": "c", "Ç": "c",
+    })
+    return s.translate(tr_map).lower()
+
+
+@lru_cache(maxsize=1)
+def _load_term_aliases() -> dict[str, list[str]]:
+    """data/term_aliases.json -> {normalized_tr_term: [en_terms]}
+    Hem orijinal hem normalize edilmiş anahtarları dahil eder."""
+    path = ROOT / "data" / "term_aliases.json"
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        raw = data.get("aliases", {})
+        out: dict[str, list[str]] = {}
+        for k, v in raw.items():
+            norm = _tr_normalize(k)
+            out[norm] = list(v)
+        return out
+    except Exception:
+        return {}
+
+
+def _expand_query_with_aliases(question: str) -> str:
+    """Sorguda geçen Türkçe ders/konu adlarının İngilizce karşılıklarını
+    sorgunun sonuna iliştirir. Türkçe karakter farklılıkları normalize edilir.
+
+    Örnek: 'Mukavemet hangi dönemde?' ->
+           'Mukavemet hangi dönemde? strength of materials mechanics of materials'
+    """
+    aliases = _load_term_aliases()
+    if not aliases:
+        return question
+    q_norm = _tr_normalize(question)
+    additions: list[str] = []
+    seen: set[str] = set()
+    # Anahtarları uzundan kısaya sırala — 'akiskanlar mekanigi' önce eşleşsin
+    for term in sorted(aliases.keys(), key=len, reverse=True):
+        # Kelime sınırı kontrolü: 'kontrol' tek başına 'otomatik kontrol' içinde
+        # gereksiz tetiklenmesin. Basit yaklaşım: term'in başında/sonunda boşluk
+        # veya cümle sınırı olsun.
+        if term in q_norm:
+            # Sahte eşleşmelerden korunmak için kelime sınırı check
+            idx = q_norm.find(term)
+            before_ok = idx == 0 or not q_norm[idx-1].isalnum()
+            after_pos = idx + len(term)
+            after_ok = after_pos >= len(q_norm) or not q_norm[after_pos].isalnum()
+            if not (before_ok and after_ok):
+                continue
+            for en in aliases[term]:
+                en_low = en.lower()
+                if en_low in seen or en_low in q_norm:
+                    continue
+                additions.append(en)
+                seen.add(en_low)
+    if not additions:
+        return question
+    return question + " " + " ".join(additions)
+
+
+def _expand_query(question: str, history: list[dict] | None) -> str:
+    """Tam genişletme: history + alias. Hem vector hem BM25 bunu kullanır."""
+    q = _expand_query_with_history(question, history)
+    q = _expand_query_with_aliases(q)
+    return q
+
+
+# ===================== Cache Katmanı =====================
+# 1) Embedding cache: aynı sorgu metni -> aynı vektör (e5 model çağrısını atla)
+# 2) Cevap cache: 5 dakika TTL; aynı soru + bölüm + history -> cevabın aynısı
+
+import time as _time_mod
+import hashlib as _hashlib
+
+_EMB_CACHE: "dict[str, list]" = {}
+_EMB_CACHE_MAX = int(os.getenv("EMB_CACHE_MAX", "500"))
+
+_ANS_CACHE: "dict[str, dict]" = {}
+_ANS_CACHE_TTL = int(os.getenv("ANS_CACHE_TTL", "300"))  # saniye
+_ANS_CACHE_MAX = int(os.getenv("ANS_CACHE_MAX", "200"))
+_CACHE_ENABLED = os.getenv("CACHE_DISABLED", "").lower() not in ("1", "true", "yes")
+
+
+def _encode_query_cached(query_text: str):
+    """e5 embedding cache — aynı string için tek seferlik encode."""
+    if not _CACHE_ENABLED:
+        return _get_embedder().encode(
+            [f"query: {query_text}"], normalize_embeddings=True
+        ).tolist()
+    if query_text in _EMB_CACHE:
+        return _EMB_CACHE[query_text]
+    vec = _get_embedder().encode(
+        [f"query: {query_text}"], normalize_embeddings=True
+    ).tolist()
+    if len(_EMB_CACHE) >= _EMB_CACHE_MAX:
+        # FIFO: en eski girdiyi düşür
+        _EMB_CACHE.pop(next(iter(_EMB_CACHE)))
+    _EMB_CACHE[query_text] = vec
+    return vec
+
+
+def _answer_cache_key(question: str, bolum: str,
+                      history: list[dict] | None) -> str:
+    """Soru + bölüm + son 2 user mesajı -> stable hash."""
+    q_norm = _tr_normalize((question or "").strip())
+    hist_str = ""
+    if history:
+        recent = [m.get("content", "") for m in history if m.get("role") == "user"][-2:]
+        hist_str = "|".join(recent)
+    raw = f"{q_norm}::{bolum}::{hist_str}"
+    return _hashlib.md5(raw.encode("utf-8", errors="ignore")).hexdigest()
+
+
+def _answer_cache_get(key: str) -> dict | None:
+    if not _CACHE_ENABLED:
+        return None
+    rec = _ANS_CACHE.get(key)
+    if not rec:
+        return None
+    if _time_mod.time() - rec["ts"] > _ANS_CACHE_TTL:
+        _ANS_CACHE.pop(key, None)
+        return None
+    return rec
+
+
+def _answer_cache_set(key: str, answer: str, hits: list[dict]) -> None:
+    if not _CACHE_ENABLED:
+        return
+    if len(_ANS_CACHE) >= _ANS_CACHE_MAX:
+        _ANS_CACHE.pop(next(iter(_ANS_CACHE)))
+    _ANS_CACHE[key] = {"answer": answer, "hits": hits, "ts": _time_mod.time()}
+
+
+def cache_stats() -> dict:
+    """Debug için cache istatistikleri."""
+    return {
+        "enabled": _CACHE_ENABLED,
+        "embedding_cache_size": len(_EMB_CACHE),
+        "embedding_cache_max": _EMB_CACHE_MAX,
+        "answer_cache_size": len(_ANS_CACHE),
+        "answer_cache_max": _ANS_CACHE_MAX,
+        "answer_cache_ttl_s": _ANS_CACHE_TTL,
+    }
+
+
+def cache_clear() -> None:
+    _EMB_CACHE.clear()
+    _ANS_CACHE.clear()
+
+
+def prewarm_models(load_reranker: bool = True) -> None:
+    """Embedding (e5) ve reranker modellerini önceden yükle.
+    Streamlit başlangıcında çağrılırsa ilk sorgu lag'i (~3-5s) ortadan kalkar."""
+    try:
+        _get_embedder()
+        # Dummy bir vektör encode et ki gerçek kullanımdaki ilk encode hızlı olsun
+        _get_embedder().encode(["query: warmup"], normalize_embeddings=True)
+    except Exception:
+        pass
+    if load_reranker:
+        try:
+            _get_reranker()
+            # Dummy bir reranking — model weights GPU/RAM'e yüklensin
+            _get_reranker().predict([("query", "doc")])
+        except Exception:
+            pass
+
+
+def warmup_status() -> dict:
+    """Hangi modellerin yüklü olduğunu döndürür."""
+    return {
+        "embedder_loaded": _get_embedder.cache_info().currsize > 0,
+        "reranker_loaded": _get_reranker.cache_info().currsize > 0,
+    }
+# =========================================================
+
+
 def vector_search(question: str, bolum: str, k: int = HYBRID_VECTOR_K,
                   history: list[dict] | None = None) -> list[dict]:
     """Saf semantic vector retrieval (Chroma + e5).
-    Ortak chunk'lar (bolum='ortak') her bölüme dahil edilir."""
-    model = _get_embedder()
+    Ortak chunk'lar (bolum='ortak') her bölüme dahil edilir.
+    Embedding cache aktif — aynı genişletilmiş sorgu için tek encode."""
     col = _get_collection()
-    expanded = _expand_query_with_history(question, history)
-    emb = model.encode([f"query: {expanded}"], normalize_embeddings=True).tolist()
+    expanded = _expand_query(question, history)
+    emb = _encode_query_cached(expanded)
     r = col.query(
         query_embeddings=emb, n_results=k,
         where={"bolum": {"$in": [bolum, "ortak"]}},
@@ -439,17 +753,29 @@ def _rrf_fuse(vector_hits: list[dict], bm25_hits: list[dict], k: int,
     return fused
 
 
+_HIGH_CONFIDENCE_DIST = float(os.getenv("RERANKER_SKIP_DIST", "0.25"))
+
+
 def retrieve(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
              history: list[dict] | None = None,
              use_reranker: bool = True) -> list[dict]:
     """Üç aşamalı retrieval:
        1) Vektör (e5)  + BM25 → RRF ile RERANK_CANDIDATES (≈30) aday
-       2) Cross-encoder reranker (bge-reranker-base) ile yeniden sırala
+       2) Cross-encoder reranker (bge-reranker-v2-m3) ile yeniden sırala
        3) En iyi k'yı döndür
+
+    Hız optimizasyonları:
+       - Vector + BM25 paralel thread'lerde çalışır (~0.5s tasarruf)
+       - Top vektör hit distance < 0.25 ise reranker atlanır (~3-8s tasarruf)
     """
-    vec = vector_search(question, bolum, k=HYBRID_VECTOR_K, history=history)
-    # BM25 için orijinal soru daha doğru — query expansion sadece vektörde fayda sağlar
-    bm = bm25_search(question, bolum, k=HYBRID_BM25_K)
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        fv = ex.submit(vector_search, question, bolum, HYBRID_VECTOR_K, history)
+        # BM25 için orijinal soru daha doğru — query expansion sadece vektörde fayda sağlar
+        fb = ex.submit(bm25_search, question, bolum, HYBRID_BM25_K)
+        vec = fv.result()
+        bm = fb.result()
 
     if not bm and not vec:
         return []
@@ -462,6 +788,12 @@ def retrieve(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
 
     if not use_reranker or len(candidates) <= 1:
         return candidates[:k]
+
+    # Hızlı yol: top vector hit yüksek güvenliyse (distance < eşik) reranker atla.
+    # Bu, "COMP 101 AKTS?" gibi kesin ders kodu sorularında ~3-8s kazandırır.
+    if vec and vec[0].get("distance", 1.0) < _HIGH_CONFIDENCE_DIST:
+        return candidates[:k]
+
     return rerank(question, candidates, top_k=k)
 
 
@@ -488,6 +820,36 @@ BOLUM_ADI_MAP = {
     "ekonomi": "Ekonomi",
 }
 
+# AGÜ resmi bölüm web siteleri — "bilgi yok" durumunda yönlendirme için
+BOLUM_LINKS = {
+    "bilgisayar": "https://cmp.agu.edu.tr",
+    "makine": "https://me.agu.edu.tr",
+    "endustri": "https://ie.agu.edu.tr",
+    "elektrik": "https://eee.agu.edu.tr",
+    "insaat": "https://ce.agu.edu.tr",
+    "malzeme": "https://msne.agu.edu.tr",
+    "mimarlik": "https://arch.agu.edu.tr",
+    "isletme": "https://ba.agu.edu.tr",
+    "ekonomi": "https://econ.agu.edu.tr",
+}
+
+# Genel destek kanalları (her bölüm için aynı)
+DESTEK_KANALLARI = (
+    "AGÜ Öğrenci İşleri: https://oidb.agu.edu.tr | "
+    "AGÜ Akademik Takvim: https://www.agu.edu.tr/akademik-takvim"
+)
+
+
+def _bolum_kaynak_satiri(bolum: str) -> str:
+    """LLM'in 'bilgi yok' cevaplarında basacağı kaynak yönlendirme satırı."""
+    link = BOLUM_LINKS.get(bolum, "https://www.agu.edu.tr")
+    bolum_adi = BOLUM_ADI_MAP.get(bolum, "ilgili bölüm")
+    return (
+        f"Resmi {bolum_adi} bölüm sitesi: {link} | "
+        f"Bölüm sekreterliği e-postası için yukarıdaki linkten 'İletişim' kısmına bakabilirsin. "
+        f"{DESTEK_KANALLARI}"
+    )
+
 # Konuşma geçmişinden LLM'e geçirilecek maksimum mesaj sayısı (son N mesaj)
 MAX_HISTORY_MESSAGES = 6
 
@@ -510,13 +872,9 @@ def _llm_answer(question: str, hits: list[dict], bolum: str,
     """Standart LLM cevabı — ders detay/ön şart sorularında kullanılır."""
     context = format_context(hits)
     bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
-    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi)
+    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi, bolum_kaynak=_bolum_kaynak_satiri(bolum))
     history_msgs = _build_history_messages(history)
-    client = Groq()
-    resp = client.chat.completions.create(
-        model=LLM_MODEL,
-        max_tokens=1800,
-        temperature=0.2,
+    text = _llm_complete(
         messages=[
             {"role": "system", "content": sys_prompt},
             *history_msgs,
@@ -533,8 +891,9 @@ def _llm_answer(question: str, hits: list[dict], bolum: str,
                 ),
             },
         ],
+        max_tokens=1800,
+        temperature=0.2,
     )
-    text = resp.choices[0].message.content or ""
     return {"answer": text, "hits": hits}
 
 
@@ -737,7 +1096,7 @@ def _llm_stream_chunks(question: str, hits: list[dict], bolum: str,
     """Groq streaming generator — token-by-token yield eder."""
     context = format_context(hits)
     bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
-    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi)
+    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi, bolum_kaynak=_bolum_kaynak_satiri(bolum))
     history_msgs = _build_history_messages(history)
     user_content = (
         f"BAĞLAM:\n{context}\n\n"
@@ -750,22 +1109,15 @@ def _llm_stream_chunks(question: str, hits: list[dict], bolum: str,
         "kullanıcı 'Kaynaklar' bölümünü açmadan tam cevabı görsün. "
         "Kaynak belirt."
     )
-    client = Groq()
-    stream = client.chat.completions.create(
-        model=LLM_MODEL,
-        max_tokens=1800,
-        temperature=0.2,
-        stream=True,
+    yield from _llm_stream(
         messages=[
             {"role": "system", "content": sys_prompt},
             *history_msgs,
             {"role": "user", "content": user_content},
         ],
+        max_tokens=1800,
+        temperature=0.2,
     )
-    for chunk in stream:
-        delta = getattr(chunk.choices[0].delta, "content", None)
-        if delta:
-            yield delta
 
 
 def answer_stream(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
@@ -825,7 +1177,7 @@ def _llm_messages(question: str, hits: list[dict], bolum: str,
     """Streaming ve non-streaming çağrıların ortak mesaj listesi."""
     context = format_context(hits)
     bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
-    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi)
+    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi, bolum_kaynak=_bolum_kaynak_satiri(bolum))
     history_msgs = _build_history_messages(history)
     return [
         {"role": "system", "content": sys_prompt},
@@ -853,18 +1205,30 @@ def answer_stream(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
 
     Dönüş:
         {
-          "mode": "list" | "compare" | "llm",
+          "mode": "list" | "compare" | "llm" | "cache",
           "hits": [...],
-          "text": str | None,           # liste/karşılaştırma modunda dolu
+          "text": str | None,           # liste/karşılaştırma/cache modunda dolu
           "token_iter": iter | None,    # LLM modunda dolu — token akışı
         }
     """
     bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
 
+    # 0) Cevap cache kontrol — aynı soru 5dk içinde sorulduysa anlık dön
+    cache_key = _answer_cache_key(question, bolum, history)
+    cached = _answer_cache_get(cache_key)
+    if cached:
+        return {
+            "mode": "cache",
+            "hits": cached["hits"],
+            "text": cached["answer"],
+            "token_iter": None,
+        }
+
     # 1) Karşılaştırma — deterministik, stream yok
     cmp_intent = detect_compare_intent(question, bolum)
     if cmp_intent:
         res = compare_curricula(cmp_intent, bolum, bolum_adi)
+        _answer_cache_set(cache_key, res["answer"], res["hits"])
         return {"mode": "compare", "hits": res["hits"], "text": res["answer"], "token_iter": None}
 
     intent = parse_intent(question, bolum)
@@ -875,49 +1239,44 @@ def answer_stream(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
         code = f"{code_match.group(1)} {code_match.group(2)}"
         code_hits = fetch_courses_by_code(code, bolum)
         if code_hits:
-            # Ek bağlam — reranker kapalı (zaten code_hits asıl kaynak)
             extra = retrieve(question, k=3, bolum=bolum, history=history, use_reranker=False)
             seen = {h["text"] for h in code_hits}
             for h in extra:
                 if h["text"] not in seen:
                     code_hits.append(h)
-            return _make_llm_stream(question, code_hits, bolum, history)
+            return _make_llm_stream(question, code_hits, bolum, history, cache_key=cache_key)
 
     # 3) Liste modu — deterministik, stream yok
     if intent:
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
-        # Ek bağlam — reranker kapalı (zaten dönem dersleri kesin sonuç)
         extra = retrieve(question, k=3, bolum=bolum, history=history, use_reranker=False)
         seen = {h["text"] for h in hits}
         for h in extra:
             if h["text"] not in seen:
                 hits.append(h)
         text = _render_list_answer(intent, hits, bolum_adi)
+        _answer_cache_set(cache_key, text, hits)
         return {"mode": "list", "hits": hits, "text": text, "token_iter": None}
 
     # 4) Genel RAG — LLM stream
     hits = retrieve(question, k=k, bolum=bolum, history=history)
-    return _make_llm_stream(question, hits, bolum, history)
+    return _make_llm_stream(question, hits, bolum, history, cache_key=cache_key)
 
 
 def _make_llm_stream(question: str, hits: list[dict], bolum: str,
-                     history: list[dict] | None) -> dict:
-    """Groq stream çağrısı + token generator döndür."""
+                     history: list[dict] | None,
+                     cache_key: str | None = None) -> dict:
+    """Provider-agnostic stream çağrısı + token generator döndür.
+    Stream sona erince cevabı cache'e yazar (cache_key verilmişse)."""
     messages = _llm_messages(question, hits, bolum, history)
 
     def _token_generator():
-        client = Groq()
-        stream = client.chat.completions.create(
-            model=LLM_MODEL,
-            max_tokens=1800,
-            temperature=0.2,
-            messages=messages,
-            stream=True,
-        )
-        for chunk in stream:
-            delta = chunk.choices[0].delta.content if chunk.choices else None
-            if delta:
-                yield delta
+        buf: list[str] = []
+        for chunk in _llm_stream(messages, max_tokens=1800, temperature=0.2):
+            buf.append(chunk)
+            yield chunk
+        if cache_key:
+            _answer_cache_set(cache_key, "".join(buf), hits)
 
     return {"mode": "llm", "hits": hits, "text": None, "token_iter": _token_generator()}
 
@@ -926,10 +1285,18 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
            history: list[dict] | None = None) -> dict:
     bolum_adi = BOLUM_ADI_MAP.get(bolum, "Mühendislik")
 
+    # Cache kontrol — 5dk içinde aynı soruysa anlık dön
+    cache_key = _answer_cache_key(question, bolum, history)
+    cached = _answer_cache_get(cache_key)
+    if cached:
+        return {"answer": cached["answer"], "hits": cached["hits"], "cached": True}
+
     # Karşılaştırma modu (multi-year diff) — diğer intent'lerden önce kontrol
     cmp_intent = detect_compare_intent(question, bolum)
     if cmp_intent:
-        return compare_curricula(cmp_intent, bolum, bolum_adi)
+        res = compare_curricula(cmp_intent, bolum, bolum_adi)
+        _answer_cache_set(cache_key, res["answer"], res["hits"])
+        return res
 
     intent = parse_intent(question, bolum)
     list_mode = False
@@ -947,7 +1314,9 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
                     code_hits.append(h)
             hits = code_hits
             # Liste modu DEĞİL — LLM normal cevap verecek (ön şart vb için)
-            return _llm_answer(question, hits, bolum, history=history)
+            res = _llm_answer(question, hits, bolum, history=history)
+            _answer_cache_set(cache_key, res.get("answer", ""), res.get("hits", hits))
+            return res
 
     if intent:
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
@@ -963,17 +1332,14 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
     if list_mode:
         # LLM'i atla: dersleri deterministik markdown olarak render et (hiçbir ders kaçmaz)
         text = _render_list_answer(intent, hits, bolum_adi)
+        _answer_cache_set(cache_key, text, hits)
         return {"answer": text, "hits": hits}
 
     context = format_context(hits)
-    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi)
+    sys_prompt = SYSTEM_PROMPT.format(bolum_adi=bolum_adi, bolum_kaynak=_bolum_kaynak_satiri(bolum))
     history_msgs = _build_history_messages(history)
 
-    client = Groq()
-    resp = client.chat.completions.create(
-        model=LLM_MODEL,
-        max_tokens=1800,
-        temperature=0.2,
+    text = _llm_complete(
         messages=[
             {"role": "system", "content": sys_prompt},
             *history_msgs,
@@ -988,8 +1354,10 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
                 ),
             },
         ],
+        max_tokens=1800,
+        temperature=0.2,
     )
-    text = resp.choices[0].message.content or ""
+    _answer_cache_set(cache_key, text, hits)
     return {"answer": text, "hits": hits}
 
 
