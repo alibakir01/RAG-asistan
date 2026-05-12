@@ -21,9 +21,12 @@ OUT = ROOT / "data" / "processed"
 OUT.mkdir(parents=True, exist_ok=True)
 
 CSV_PATH = RAW / "siyaset_mufredat.csv"
+SECMELI_CSV_PATH = RAW / "siyaset_secmeli.csv"
 BOLUM = "siyaset"
 BOLUM_ADI = "Siyaset Bilimi ve Uluslararası İlişkiler"
 MUFREDAT_YILI = "2025"
+
+NOT_SPECIFIED = "Belirtilmemiş"
 
 DONEM_NAMES = {
     "BİRİNCİ DÖNEM": 1, "İKİNCİ DÖNEM": 2,
@@ -220,6 +223,111 @@ def parse_csv() -> list[dict]:
     return chunks
 
 
+def parse_secmeli_csv() -> list[dict]:
+    """Seçmeli ders havuzunu işle (Bölüm Dışı Zorunlu, Sınırlı Seçmeli, Bölüm İçi Seçmeli)."""
+    if not SECMELI_CSV_PATH.exists():
+        print(f"[!] bulunamadı: {SECMELI_CSV_PATH}")
+        return []
+
+    chunks: list[dict] = []
+    by_kategori: dict[str, list[dict]] = {}
+    seen_ids: set[str] = set()
+
+    with SECMELI_CSV_PATH.open(encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        # Header trailing-space fix: "Haftalık Saat "
+        fieldnames = {k.strip(): k for k in (reader.fieldnames or [])}
+
+        def g(row: dict, key: str) -> str:
+            orig = fieldnames.get(key, key)
+            return (row.get(orig) or "").strip()
+
+        for row in reader:
+            kategori = g(row, "Kategori")
+            kod_raw = g(row, "Ders Kodu")
+            ad = g(row, "Ders İsmi")
+            saat = g(row, "Haftalık Saat")
+            kredi = g(row, "Kredi")
+            akts = g(row, "AKTS")
+
+            if not kod_raw or not kategori:
+                continue
+
+            ders_kodu = _norm_kod(kod_raw)
+            # Eksik bilgi normalize
+            ad_n = ad if ad and not ad.startswith("PDF") else NOT_SPECIFIED
+            saat_n = saat if saat and not saat.startswith("Belirt") else NOT_SPECIFIED
+            kredi_n = kredi if kredi and not kredi.startswith("Belirt") else NOT_SPECIFIED
+            akts_n = akts if akts and not akts.startswith("Belirt") else NOT_SPECIFIED
+
+            base_id = ders_kodu.replace(" ", "_")
+            cid = f"siyaset_sec_{base_id}"
+            idx = 1
+            while cid in seen_ids:
+                idx += 1
+                cid = f"siyaset_sec_{base_id}_{idx}"
+            seen_ids.add(cid)
+
+            text = (
+                f"{BOLUM_ADI} ({MUFREDAT_YILI}) seçmeli ders havuzu — "
+                f"Kategori: {kategori}. Ders: {ders_kodu} {ad_n}. "
+                f"Haftalık saat: {saat_n}, Kredi: {kredi_n}, AKTS: {akts_n}. "
+                f"Ön şart: yok."
+            )
+            chunks.append({
+                "id": cid,
+                "text": text,
+                "metadata": {
+                    "tip": "secmeli",
+                    "kategori": kategori,
+                    "mufredat_yili": MUFREDAT_YILI,
+                    "ders_kodu": ders_kodu,
+                    "ders_adi": ad_n,
+                    "haftalik_saat": saat_n,
+                    "kredi": kredi_n,
+                    "akts": akts_n,
+                    "on_sart": "yok",
+                    "kaynak": SECMELI_CSV_PATH.name,
+                    "bolum": BOLUM,
+                },
+            })
+
+            by_kategori.setdefault(kategori, []).append({
+                "kod": ders_kodu, "ad": ad_n, "kredi": kredi_n, "akts": akts_n,
+            })
+
+    # Kategori özet chunk'ları (örn. "Tüm Sınırlı Seçmeli dersler" sorusuna cevap için)
+    for kategori, items in by_kategori.items():
+        lines = [
+            f"- {it['kod']} | {it['ad']} | Kredi: {it['kredi']}, AKTS: {it['akts']}"
+            for it in items
+        ]
+        body = (
+            f"{BOLUM_ADI} ({MUFREDAT_YILI}) — {kategori} ders havuzu, "
+            f"toplam {len(items)} ders:\n" + "\n".join(lines)
+        )
+        kat_slug = (
+            kategori.lower()
+            .replace("ı", "i").replace("ş", "s").replace("ç", "c")
+            .replace("ö", "o").replace("ü", "u").replace("ğ", "g")
+            .replace(" ", "_")
+        )
+        chunks.append({
+            "id": f"siyaset_sec_ozet_{kat_slug}",
+            "text": body[:5000],
+            "metadata": {
+                "tip": "secmeli_ozet",
+                "kategori": kategori,
+                "mufredat_yili": MUFREDAT_YILI,
+                "ders_sayisi": len(items),
+                "kaynak": SECMELI_CSV_PATH.name,
+                "bolum": BOLUM,
+            },
+        })
+
+    return chunks
+
+
 def make_program_overview() -> dict:
     text = (
         "Abdullah Gül Üniversitesi Siyaset Bilimi ve Uluslararası İlişkiler "
@@ -252,6 +360,7 @@ def make_program_overview() -> dict:
 
 def main():
     chunks = parse_csv()
+    chunks.extend(parse_secmeli_csv())
     chunks.append(make_program_overview())
     out_path = OUT / "chunks_siyaset.jsonl"
     with out_path.open("w", encoding="utf-8") as f:
