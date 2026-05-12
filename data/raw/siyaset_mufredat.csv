@@ -1,0 +1,55 @@
+BİRİNCİ YIL,,,,,,,,,,,,,
+BİRİNCİ DÖNEM,,,,,,,İKİNCİ DÖNEM,,,,,,
+Ders Kodu,Ders Adı,T,P,Kredi,AKTS,Ön Şart,Ders Kodu,Ders Adı,T,P,Kredi,AKTS,Ön Şart
+POLS 101,Siyaset Bilimine Giriş 1,3,0,3,6,-,POLS 102,Siyaset Bilimine Giriş II,3,0,3,6,-
+POLS 111,Uygarlık Tarihi,3,0,3,5,-,POLS 112,Siyasette Veri ve Dijitalleşme,3,0,3,5,-
+POLS 121,Mikroekonomi,3,0,3,5,-,POLS 122,Makroekonomi,3,0,3,5,-
+MATH 111,İş Matematiği,4,0,4,6,-,POLS 131,Yaşam Sanatı I,0,1,1,1,-
+ENG 101,İngilizce 1,4,0,4,4,-,ENG 102,İngilizce II,4,0,4,4,-
+TURK XXX,Türk Dili,2,0,2,2,-,TURK XXX,Türk Dili,2,0,2,2,-
+GLB 101,AGU Ways I,3,0,3,4,-,GLB 104,AGU Ways II,3,0,3,4,-
+,,,,,,,CP 100 POLS,Kariyer Planlama,1,0,1,1,-
+Dönem Toplam,,22,0,22,32,,Dönem Toplam,,19,1,20,28,
+,,,,,,,Yıl Toplam,,41,1,42,60,
+,,,,,,,,,,,,,
+İKİNCİ YIL,,,,,,,,,,,,,
+ÜÇÜNCÜ DÖNEM,,,,,,,DÖRDÜNCÜ DÖNEM,,,,,,
+Ders Kodu,Ders Adı,T,P,Kredi,AKTS,Ön Şart,Ders Kodu,Ders Adı,T,P,Kredi,AKTS,Ön Şart
+POLS 201,Araştırma Yöntemleri I,3,0,3,5,-,POLS 202,Araştırma Yöntemleri II,3,0,3,5,-
+POLS 211,Siyasi Düşünceler Tarihi,3,0,3,3,-,POLS 212,Uluslararası İlişkilere Giriş,3,0,3,5,-
+POLS 221,Hukuka Giriş,3,0,3,3,-,POLS 222,Türk Anayasa Hukuku,3,0,3,5,-
+SOC 201,Sosyolojiye Giriş,3,0,3,5,-,HIST 2XX,Modern Türkiye Tarihi II,2,0,2,2,-
+HIST 2XX,Modern Türkiye Tarihi I,2,0,2,3,-,GLB 2XX,Küresel Seçmeli,3,0,3,4,-
+GLB 2XX,Küresel Seçmeli,3,0,3,4,-,POLS XXX,Sınırlı Seçmeli (1),3,0,3,5,-
+POLS 299,Yaz Stajı I,0,2,1,2,"POLS 101, POLS 102, POLS 111, POLS 112",POLS XXX,Sınırlı Seçmeli (2),3,0,3,5,-
+Dönem Toplam,,17,2,18,25,,Dönem Toplam,,20,0,20,31,
+,,,,,,,Yıl Toplam,,37,2,38,60,
+,,,,,,,,,,,,,
+ÜÇÜNCÜ YIL,,,,,,,,,,,,,
+BEŞİNCİ DÖNEM,,,,,,,ALTINCI DÖNEM,,,,,,
+Ders Kodu,Ders Adı,T,P,Kredi,AKTS,Ön Şart,Ders Kodu,Ders Adı,T,P,Kredi,AKTS,Ön Şart
+POLS 301,Türk Politikası,3,0,3,5,-,POLS 302,Siyasi Teoriler,3,0,3,5,-
+POLS 311,Uluslararası Örgütler,3,0,3,5,-,POLS 312,Karşılaştırmalı Hükümet Sistemleri,3,0,3,5,-
+POLS 321,Yaşam Sanatı II,0,1,1,1,-,POLS 322,Türk Siyasi Hayatı,3,0,3,5,-
+GLB 301,Sürdürülebilirlik,3,0,3,4,-,POLS XXX,Bölüm-içi Seçmeli (3),3,0,3,5,-
+POLS XXX,Bölüm-içi Seçmeli (1),3,0,3,5,-,POLS XXX,Sınırlı Seçmeli (4),3,0,3,5,-
+POLS XXX,Bölüm-içi Seçmeli (2),3,0,3,5,-,POLS XXX,Bölüm Dışı Seçmeli (1),3,0,3,5,-
+POLS XXX,Sınırlı Seçmeli (3),3,0,3,5,-,,,,,,,
+Dönem Toplam,,18,1,19,30,,Dönem Toplam,,18,0,18,30,
+,,,,,,,Yıl Toplam,,36,1,37,60,
+,,,,,,,,,,,,,
+DÖRDÜNCÜ YIL,,,,,,,,,,,,,
+YEDİNCİ DÖNEM,,,,,,,SEKİZİNCİ DÖNEM,,,,,,
+Ders Kodu,Ders Adı,T,P,Kredi,AKTS,Ön Şart,Ders Kodu,Ders Adı,T,P,Kredi,AKTS,Ön Şart
+POLS 400,Seminer,0,1,1,2,-,POLS 421,Bitirme Projesi II,2,0,2,6,-
+POLS 401,Siyasi Ekonomi,3,0,3,5,-,POLS XXX,Bölüm-içi Seçmeli (5),3,0,3,5,-
+POLS 420,Bitirme Projesi I,2,0,2,6,-,POLS XXX,Sınırlı Seçmeli (6),3,0,3,5,-
+POLS XXX,Bölüm-içi Seçmeli (4),3,0,3,5,-,POLS XXX,Bölüm Dışı Seçmeli (3),3,0,3,5,-
+POLS XXX,Sınırlı Seçmeli (5),3,0,3,5,-,POLS XXX,Bölüm Dışı Seçmeli (4),3,0,3,5,-
+POLS XXX,Bölüm Dışı Seçmeli (2),3,0,3,5,-,,,,,,,
+POLS 499,Yaz Stajı II,0,2,1,3,"POLS 201, POLS 202, POLS 212, SOC 201",,,,,,,
+Dönem Toplam,,14,3,16,34,,Dönem Toplam,,14,0,14,26,
+,,,,,,,Yıl Toplam,,28,3,30,60,
+,,,,,,,,,,,,,
+GENEL TOPLAM,,,,,,,T,P,Kredi,AKTS,,,
+,,,,,,,143,6,147,240,,,
