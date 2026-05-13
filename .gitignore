@@ -19,6 +19,8 @@ env/
 
 # ChromaDB indeksi (büyük binary, embed.py ile yeniden üretilebilir)
 data/chroma/
+data/chroma.*/
+chroma.zip
 
 # Geçici / debug dosyaları
 me_pdf_dump.txt

@@ -22,6 +22,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 CSV_PATH = RAW / "siyaset_mufredat.csv"
 SECMELI_CSV_PATH = RAW / "siyaset_secmeli.csv"
+KATALOG_PATH = RAW / "siyaset_katalog.json"
 BOLUM = "siyaset"
 BOLUM_ADI = "Siyaset Bilimi ve Uluslararası İlişkiler"
 MUFREDAT_YILI = "2025"
@@ -328,6 +329,193 @@ def parse_secmeli_csv() -> list[dict]:
     return chunks
 
 
+def parse_katalog() -> list[dict]:
+    """SBUI katalog JSON'ından zengin ders içerik + program meta chunk'ları üret."""
+    if not KATALOG_PATH.exists():
+        print(f"[!] bulunamadı: {KATALOG_PATH}")
+        return []
+
+    with KATALOG_PATH.open(encoding="utf-8") as f:
+        data = json.load(f)
+
+    chunks: list[dict] = []
+
+    # ---- Ders içerikleri (her ders için bir chunk) ----
+    for c in data.get("ders_katalogu", []):
+        kod = c["kod"]
+        ad = c.get("ad", "")
+        saat = c.get("saat", "")
+        kredi = c.get("kredi", "")
+        akts = c.get("akts", "")
+        yil = c.get("yil")
+        donem = c.get("donem", "")
+        tip = c.get("tip", "")
+        dil = c.get("dil", "Türkçe")
+        on_sart = c.get("on_sart", "") or ""
+        icerik = c.get("icerik", "")
+
+        on_sart_str = on_sart if on_sart else "yok"
+        yil_str = f"{yil}. yıl, " if yil else ""
+
+        text = (
+            f"{BOLUM_ADI} ({MUFREDAT_YILI}) ders kataloğu — "
+            f"{kod} {ad}. {yil_str}Dönem: {donem}. Tip: {tip}. "
+            f"Haftalık saat: {saat}. Kredi: {kredi}. AKTS: {akts}. "
+            f"Dersin dili: {dil}. Ön şart: {on_sart_str}. "
+            f"İçerik: {icerik}"
+        )
+
+        base_id = kod.replace(" ", "_").replace(".", "_")
+        chunks.append({
+            "id": f"siyaset_katalog_{base_id}",
+            "text": text[:5000],
+            "metadata": {
+                "tip": "ders_icerik",
+                "mufredat_yili": MUFREDAT_YILI,
+                "ders_kodu": kod,
+                "ders_adi": ad,
+                "ders_tipi": tip,
+                "donem_label": donem,
+                "yil": yil if yil else "",
+                "haftalik_saat": saat,
+                "kredi": kredi,
+                "akts": akts,
+                "dil": dil,
+                "on_sart": on_sart_str,
+                "kaynak": "SBUI_Katalog_2025_TR.pdf",
+                "bolum": BOLUM,
+            },
+        })
+
+    # ---- Program genel bilgi ----
+    p = data.get("program", {})
+    if p:
+        text = (
+            f"{p.get('ad', BOLUM_ADI)} ({p.get('kod', 'POLS')}) programı — {p.get('fakulte', '')}. "
+            f"Program amacı: {p.get('amac', '')} "
+            f"Hedefler: {p.get('hedefler', '')} "
+            f"Derece: {p.get('derece', '')}. Süre: {p.get('sure', '')}. "
+            f"Toplam ders sayısı: {p.get('ders_sayisi_toplam', 54)}, "
+            f"toplam kredi: {p.get('kredi_toplam', 145)}, toplam AKTS: {p.get('akts_toplam', 240)}. "
+            f"Düzey: {p.get('duzey', '')}. Eğitim türü: {p.get('egitim_turu', '')}. "
+            f"Eğitim temel alanı: {p.get('egitim_temel_alan', '')}. "
+            f"Kabul koşulları: {p.get('kabul_kosullari', '')} "
+            f"Önceki öğrenmenin tanınması: {p.get('onceki_ogrenmenin_taninmasi', '')} "
+            f"Mezuniyet koşulları: {p.get('mezuniyet_kosullari', '')} "
+            f"Kariyer ve istihdam: {p.get('kariyer', '')} "
+            f"Üst derece programlarına geçiş: {p.get('ust_derece', '')} "
+            f"Ölçme ve değerlendirme: {p.get('olcme_degerlendirme', '')}"
+        )
+        chunks.append({
+            "id": "siyaset_program_genel",
+            "text": text[:5000],
+            "metadata": {
+                "tip": "program_genel",
+                "mufredat_yili": MUFREDAT_YILI,
+                "kaynak": "SBUI_Katalog_2025_TR.pdf",
+                "bolum": BOLUM,
+            },
+        })
+
+    # ---- Program çıktıları (PO1-PO12) ----
+    po_list = data.get("program_ciktilari", [])
+    if po_list:
+        lines = [f"{x['kod']}: {x['ad']}" for x in po_list]
+        text = (
+            f"{BOLUM_ADI} programının {len(po_list)} program çıktısı (Program Outcomes, PO): "
+            + "; ".join(lines) + ". "
+            "Bu çıktılar mezunların kazanacağı temel yetkinlikleri tanımlar."
+        )
+        chunks.append({
+            "id": "siyaset_program_ciktilari",
+            "text": text,
+            "metadata": {
+                "tip": "program_ciktilari",
+                "mufredat_yili": MUFREDAT_YILI,
+                "kaynak": "SBUI_Katalog_2025_TR.pdf",
+                "bolum": BOLUM,
+            },
+        })
+
+    # ---- Kurumsal öğrenme çıktıları (IO1-IO7) ----
+    io_list = data.get("kurumsal_ciktilar", [])
+    if io_list:
+        lines = [f"{x['kod']}: {x['ad']}" for x in io_list]
+        text = (
+            "Abdullah Gül Üniversitesi Kurumsal Öğrenme Çıktıları (Institutional Outcomes, IO) "
+            f"{BOLUM_ADI} programı için: " + "; ".join(lines) + "."
+        )
+        chunks.append({
+            "id": "siyaset_kurumsal_ciktilar",
+            "text": text,
+            "metadata": {
+                "tip": "kurumsal_ciktilar",
+                "mufredat_yili": MUFREDAT_YILI,
+                "kaynak": "SBUI_Katalog_2025_TR.pdf",
+                "bolum": BOLUM,
+            },
+        })
+
+    # ---- Not sistemi ----
+    not_list = data.get("not_sistemi", [])
+    if not_list:
+        rows = []
+        for n in not_list:
+            harf = n.get("harf", "")
+            kat = n.get("katsayi")
+            puan = n.get("puan", "")
+            statu = n.get("statu", "")
+            kat_str = f"{kat:.2f}" if kat is not None else "—"
+            puan_str = puan if puan else "—"
+            rows.append(f"{harf} (katsayı: {kat_str}, puan: {puan_str}, statü: {statu})")
+        text = (
+            f"AGÜ {BOLUM_ADI} not sistemi (AGÜ Lisans Eğitim-Öğretim ve Sınav Yönetmeliği): "
+            + "; ".join(rows) + ". "
+            "GPA hesabında F (0.00) başarısız sayılır. C- ve altı (1.67-) şartlı geçer; "
+            "D+ ve D (1.33 ve 1.00) şartlı geçer. NA devamsızlık nedeniyle kalmayı, "
+            "W çekilmeyi, EX muafiyeti gösterir."
+        )
+        chunks.append({
+            "id": "siyaset_not_sistemi",
+            "text": text[:5000],
+            "metadata": {
+                "tip": "not_sistemi",
+                "kaynak": "SBUI_Katalog_2025_TR.pdf",
+                "bolum": BOLUM,
+            },
+        })
+
+    # ---- Mezuniyet şablonu ----
+    mez = data.get("mezuniyet_sablonu", [])
+    if mez:
+        sections = []
+        for m in mez:
+            kat = m.get("kategori", "")
+            ds = m.get("ders_sayisi", "?")
+            kr = m.get("kredi", "?")
+            akts = m.get("akts", "?")
+            dlist = m.get("dersler", [])
+            ds_str = f" Dersler: {', '.join(dlist)}." if dlist else ""
+            sections.append(f"{kat}: {ds} ders, {kr} kredi, {akts} AKTS.{ds_str}")
+        text = (
+            f"{BOLUM_ADI} mezuniyet şablonu (toplam 54 ders, 145 kredi, 240 AKTS): "
+            + " ".join(sections)
+            + " Mezuniyet için GPA en az 2.00 olmalıdır."
+        )
+        chunks.append({
+            "id": "siyaset_mezuniyet_sablonu",
+            "text": text[:5000],
+            "metadata": {
+                "tip": "mezuniyet_sablonu",
+                "mufredat_yili": MUFREDAT_YILI,
+                "kaynak": "SBUI_Katalog_2025_TR.pdf",
+                "bolum": BOLUM,
+            },
+        })
+
+    return chunks
+
+
 def make_program_overview() -> dict:
     text = (
         "Abdullah Gül Üniversitesi Siyaset Bilimi ve Uluslararası İlişkiler "
@@ -361,6 +549,7 @@ def make_program_overview() -> dict:
 def main():
     chunks = parse_csv()
     chunks.extend(parse_secmeli_csv())
+    chunks.extend(parse_katalog())
     chunks.append(make_program_overview())
     out_path = OUT / "chunks_siyaset.jsonl"
     with out_path.open("w", encoding="utf-8") as f:

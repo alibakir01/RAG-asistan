@@ -595,6 +595,7 @@ with st.sidebar:
             "Mimarlık",
             "İşletme",
             "Ekonomi",
+            "Siyaset Bilimi ve Uluslararası İlişkiler",
         ],
     )
     BOLUM_ID_MAP = {
@@ -607,6 +608,7 @@ with st.sidebar:
         "Mimarlık": "mimarlik",
         "İşletme": "isletme",
         "Ekonomi": "ekonomi",
+        "Siyaset Bilimi ve Uluslararası İlişkiler": "siyaset",
     }
     BOLUM_SVG = {
         "bilgisayar": (
@@ -665,6 +667,16 @@ with st.sidebar:
             '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
             '<path d="M3 17l6-6 4 4 8-8"/>'
             '<path d="M14 7h7v7"/>'
+            '</svg></span>'
+        ),
+        "siyaset": (
+            '<span class="bolum-icon" title="Siyaset Bilimi ve Uluslararası İlişkiler">'
+            '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+            '<path d="M3 21h18"/>'
+            '<path d="M12 3v18"/>'
+            '<path d="M12 3l7 4-7 4"/>'
+            '<path d="M5 21V10"/>'
+            '<path d="M19 21V14"/>'
             '</svg></span>'
         ),
     }
@@ -830,6 +842,12 @@ SUGGESTIONS = {
         ("📈", "ECON 201 Microeconomics I ön şartı nedir?"),
         ("🧩", "ECON 301 Econometrics I kaç AKTS?"),
         ("📋", "3. sınıf güz dönemi ekonomi dersleri"),
+    ],
+    "siyaset": [
+        ("📚", "1. sınıf siyaset bilimi dersleri neler?"),
+        ("🏛️", "POLS 101 Siyaset Bilimine Giriş kaç AKTS?"),
+        ("🧩", "POLS 299 Yaz Stajı I ön şartı nedir?"),
+        ("📋", "3. sınıf güz dönemi POLS dersleri"),
     ],
 }
 

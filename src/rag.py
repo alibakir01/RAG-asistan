@@ -185,6 +185,7 @@ KURALLAR:
 12. Malzeme Bilimi ve Nanoteknoloji Mühendisliği (MSNE) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat).
 13. Mimarlık (ARCH) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat). Eğitim dili İngilizce'dir.
 14. İşletme (BA) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat). Eğitim dili İngilizce'dir.
+15. Siyaset Bilimi ve Uluslararası İlişkiler (POLS) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat). Toplam mezuniyet kredisi 147, toplam AKTS 240'tır.
 """
 
 
@@ -312,7 +313,7 @@ LIST_TRIGGERS = [
     "dersler hangileri", "dersler neler", "listele",
 ]
 
-LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025", "mimarlik": "2025", "isletme": "2025", "ekonomi": "2025"}
+LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025", "mimarlik": "2025", "isletme": "2025", "ekonomi": "2025", "siyaset": "2025"}
 
 
 # --- Otomatik bölüm tespiti ---
@@ -351,6 +352,12 @@ BOLUM_KEYWORDS: dict[str, list[str]] = {
     "ekonomi": [
         "ekonomi", "iktisat", "economics", "econ",
     ],
+    "siyaset": [
+        "siyaset bilimi", "siyaset bil", "uluslararası ilişkiler",
+        "uluslararasi iliskiler", "uluslar arası ilişkiler",
+        "uluslar arasi iliskiler", "political science",
+        "international relations", "pols", "siyaset müh", "siyaset böl",
+    ],
 }
 
 
@@ -362,8 +369,9 @@ def detect_bolum(question: str) -> str | None:
         "MSNE": "malzeme", "COMP": "bilgisayar", "ME": "makine",
         "IE": "endustri", "EE": "elektrik", "CE": "insaat",
         "ARCH": "mimarlik", "BA": "isletme", "ECON": "ekonomi",
+        "POLS": "siyaset",
     }
-    code_match = re.search(r"\b(MSNE|COMP|ARCH|ECON|ME|IE|EE|CE|BA)\s*\d{2,4}\b", question.upper())
+    code_match = re.search(r"\b(MSNE|COMP|ARCH|ECON|POLS|ME|IE|EE|CE|BA)\s*\d{2,4}\b", question.upper())
     if code_match:
         return code_prefixes[code_match.group(1)]
     # 2) İsim tabanlı anahtar kelimeler
@@ -426,6 +434,9 @@ def parse_intent(question: str, bolum: str) -> dict | None:
             mufredat_yili = "2025"
         elif bolum == "ekonomi":
             # ECON: tek aktif müfredat -> "2025"
+            mufredat_yili = "2025"
+        elif bolum == "siyaset":
+            # POLS: tek aktif müfredat -> "2025"
             mufredat_yili = "2025"
         else:
             # Bilgisayar Mühendisliği:
@@ -509,6 +520,89 @@ def fetch_semester_courses(mufredat_yili: str, donems: list[int], bolum: str) ->
         hits.append({"text": doc, "metadata": md, "distance": 0.0})
     hits.sort(key=lambda h: (h["metadata"].get("donem", 0), h["metadata"].get("ders_kodu", "")))
     return hits
+
+
+# ===================== Seçmeli ders listesi intent =====================
+
+SECMELI_CATEGORY_PATTERNS = [
+    (re.compile(r"b[öo]l[üu]m[\s\-_]*i[çc]i[\s\-_]*se[çc]meli", re.I), "Bölüm İçi Seçmeli"),
+    (re.compile(r"s[ıi]n[ıi]rl[ıi][\s\-_]*se[çc]meli", re.I), "Sınırlı Seçmeli"),
+    (re.compile(r"b[öo]l[üu]m[\s\-_]*d[ıi][şs][ıi][\s\-_]*zorunlu", re.I), "Bölüm Dışı Zorunlu"),
+]
+SECMELI_LIST_TRIGGERS_NORM = [
+    "neler", "nelerdir", "hepsi", "tum ", "tum", "listele", "goster", "göster",
+    "hangileri", "ders listesi", "ders havuzu", "ne var", "var mi",
+]
+
+
+def parse_secmeli_intent(question: str) -> str | None:
+    """'Bölüm içi seçmelileri göster' gibi soruları yakalar.
+    Döner: kategori adı ('Bölüm İçi Seçmeli' vs.) veya 'ALL' veya None."""
+    q_norm = _tr_normalize(question)
+    if "secmeli" not in q_norm and "zorunlu" not in q_norm:
+        return None
+    has_trigger = any(t in q_norm for t in SECMELI_LIST_TRIGGERS_NORM)
+
+    for pattern, kategori in SECMELI_CATEGORY_PATTERNS:
+        if pattern.search(question):
+            return kategori
+
+    if "secmeli" in q_norm and has_trigger:
+        return "ALL"
+    return None
+
+
+def fetch_electives_by_category(kategori_or_all: str, bolum: str) -> list[dict]:
+    col = _get_collection()
+    if kategori_or_all == "ALL":
+        where = {"$and": [{"bolum": bolum}, {"tip": "secmeli"}]}
+    else:
+        where = {"$and": [{"bolum": bolum}, {"tip": "secmeli"}, {"kategori": kategori_or_all}]}
+    r = col.get(where=where)
+    hits = []
+    for _id, doc, md in zip(r["ids"], r["documents"], r["metadatas"]):
+        hits.append({"text": doc, "metadata": md, "distance": 0.0})
+    hits.sort(key=lambda h: (h["metadata"].get("kategori", ""), h["metadata"].get("ders_kodu", "")))
+    return hits
+
+
+def _render_elective_list(kategori_or_all: str, hits: list[dict], bolum_adi: str) -> str:
+    if not hits:
+        return (
+            f"## {bolum_adi} — Seçmeli ders havuzu\n\n"
+            f"Bu kategori için elimdeki dokümanlarda kayıt bulunamadı."
+        )
+
+    def _row(md: dict) -> str:
+        kod = md.get("ders_kodu", "")
+        ad = md.get("ders_adi", "") or "—"
+        saat = (md.get("haftalik_saat", "") or "—")
+        kredi = (md.get("kredi", "") or "—")
+        akts = (md.get("akts", "") or "—")
+        return f"- **{kod}** — {ad}  \n  Haftalık saat: {saat}, Kredi: {kredi}, AKTS: {akts}"
+
+    if kategori_or_all == "ALL":
+        from collections import defaultdict
+        by_kat: dict[str, list[dict]] = defaultdict(list)
+        for h in hits:
+            by_kat[h["metadata"].get("kategori", "Diğer")].append(h)
+        lines = [f"## {bolum_adi} — Seçmeli ve Bölüm Dışı Ders Havuzları\n"]
+        for kat, items in by_kat.items():
+            lines.append(f"### {kat} ({len(items)} ders)\n")
+            for h in items:
+                lines.append(_row(h["metadata"]))
+            lines.append("")
+        lines.append(f"_Kaynak: seçmeli ders havuzu dokümanı ({bolum_adi})._")
+        return "\n".join(lines)
+
+    lines = [
+        f"## {bolum_adi} — {kategori_or_all} ders havuzu\n",
+        f"Toplam **{len(hits)} ders**:\n",
+    ]
+    for h in hits:
+        lines.append(_row(h["metadata"]))
+    lines.append(f"\n_Kaynak: seçmeli ders havuzu dokümanı ({bolum_adi})._")
+    return "\n".join(lines)
 
 
 def _expand_query_with_history(question: str, history: list[dict] | None) -> str:
@@ -818,6 +912,7 @@ BOLUM_ADI_MAP = {
     "mimarlik": "Mimarlık",
     "isletme": "İşletme",
     "ekonomi": "Ekonomi",
+    "siyaset": "Siyaset Bilimi ve Uluslararası İlişkiler",
 }
 
 # AGÜ resmi bölüm web siteleri — "bilgi yok" durumunda yönlendirme için
@@ -831,12 +926,13 @@ BOLUM_LINKS = {
     "mimarlik": "https://arch.agu.edu.tr",
     "isletme": "https://ba.agu.edu.tr",
     "ekonomi": "https://econ.agu.edu.tr",
+    "siyaset": "https://pols.agu.edu.tr",
 }
 
 # Genel destek kanalları (her bölüm için aynı)
 DESTEK_KANALLARI = (
     "AGÜ Öğrenci İşleri: https://oidb.agu.edu.tr | "
-    "AGÜ Akademik Takvim: https://www.agu.edu.tr/akademik-takvim"
+    "AGÜ Akademik Takvim: https://www.agu.edu.tr/akademiktakvim"
 )
 
 
@@ -1246,6 +1342,15 @@ def answer_stream(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
                     code_hits.append(h)
             return _make_llm_stream(question, code_hits, bolum, history, cache_key=cache_key)
 
+    # 2b) Seçmeli ders havuzu liste sorgusu — deterministik
+    sec_kat = parse_secmeli_intent(question)
+    if sec_kat:
+        sec_hits = fetch_electives_by_category(sec_kat, bolum)
+        if sec_hits:
+            text = _render_elective_list(sec_kat, sec_hits, bolum_adi)
+            _answer_cache_set(cache_key, text, sec_hits)
+            return {"mode": "list", "hits": sec_hits, "text": text, "token_iter": None}
+
     # 3) Liste modu — deterministik, stream yok
     if intent:
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
@@ -1317,6 +1422,15 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
             res = _llm_answer(question, hits, bolum, history=history)
             _answer_cache_set(cache_key, res.get("answer", ""), res.get("hits", hits))
             return res
+
+    # Seçmeli ders havuzu liste sorgusu — deterministik
+    sec_kat = parse_secmeli_intent(question)
+    if sec_kat:
+        sec_hits = fetch_electives_by_category(sec_kat, bolum)
+        if sec_hits:
+            text = _render_elective_list(sec_kat, sec_hits, bolum_adi)
+            _answer_cache_set(cache_key, text, sec_hits)
+            return {"answer": text, "hits": sec_hits}
 
     if intent:
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)

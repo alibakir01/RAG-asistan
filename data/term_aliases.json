@@ -140,6 +140,24 @@
     "malzeme bilimi": ["materials science"],
     "polimer": ["polymers"],
     "metalürji": ["metallurgy"],
-    "karakterizasyon": ["characterization"]
+    "karakterizasyon": ["characterization"],
+    "siyaset bilimi": ["political science"],
+    "siyaset": ["politics", "political science"],
+    "uluslararası ilişkiler": ["international relations"],
+    "uluslararasi iliskiler": ["international relations"],
+    "siyasi düşünceler": ["political thought", "history of political thought"],
+    "siyasi teoriler": ["political theory"],
+    "siyasi ekonomi": ["political economy"],
+    "karşılaştırmalı hükümet": ["comparative government", "comparative politics"],
+    "uluslararası örgütler": ["international organizations"],
+    "türk politikası": ["turkish politics"],
+    "türk siyasi hayatı": ["turkish political life"],
+    "türk anayasa hukuku": ["turkish constitutional law"],
+    "anayasa hukuku": ["constitutional law"],
+    "hukuka giriş": ["introduction to law"],
+    "uygarlık tarihi": ["history of civilization"],
+    "sosyoloji": ["sociology"],
+    "modern türkiye tarihi": ["modern turkish history", "history of modern turkey"],
+    "araştırma yöntemleri": ["research methods"]
   }
 }
