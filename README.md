@@ -16,6 +16,7 @@ Erasmus ve yatay geçiş sorularını cevaplar.
 - Mimarlık
 
 **Yaşam & Doğa Bilimleri**
+- Biyomühendislik
 - Moleküler Biyoloji ve Genetik (MBG)
 
 **İktisadi & İdari / Sosyal Bilimler**
