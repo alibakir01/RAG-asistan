@@ -1,5 +1,5 @@
 """
-RAG çekirdeği: soru -> retrieval -> Groq (Llama 3.3 70B) ile Türkçe cevap.
+RAG çekirdeği: soru -> retrieval -> Groq (Llama 4 Scout 17B) ile Türkçe cevap.
 Kullanım:
     python src/rag.py "2023 girişliyim 3. dönem hangi dersler var"
 
@@ -36,7 +36,7 @@ COLLECTION = "agu_comp"
 
 # LLM sağlayıcısı: "groq" (varsayılan) veya "openrouter"
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "groq").lower().strip()
-LLM_MODEL_GROQ = "llama-3.3-70b-versatile"
+LLM_MODEL_GROQ = "meta-llama/llama-4-scout-17b-16e-instruct"
 LLM_MODEL_OPENROUTER = os.getenv("OPENROUTER_MODEL", "openai/gpt-oss-120b:free")
 LLM_MODEL = LLM_MODEL_OPENROUTER if LLM_PROVIDER == "openrouter" else LLM_MODEL_GROQ
 
@@ -186,6 +186,8 @@ KURALLAR:
 13. Mimarlık (ARCH) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat). Eğitim dili İngilizce'dir.
 14. İşletme (BA) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat). Eğitim dili İngilizce'dir.
 15. Siyaset Bilimi ve Uluslararası İlişkiler (POLS) için: tüm girişler "2025" müfredatına tabidir (tek aktif müfredat). Toplam mezuniyet kredisi 147, toplam AKTS 240'tır.
+16. Biyomühendislik (BENG) için: tüm girişler "2021" müfredatına tabidir (tek aktif müfredat). Eğitim dili İngilizce'dir, toplam 240 AKTS. 3. sınıfta alan seçimi yapılır: A) Biyomateryal ve Doku Mühendisliği, B) Genetik ve Biyoproses Mühendisliği, C) Biyomedikal Elektroniği. Bazı seçmeli dersler MBG kodludur.
+17. Moleküler Biyoloji ve Genetik (MBG) için: tüm girişler "2021" müfredatına tabidir (tek aktif müfredat). Eğitim dili İngilizce'dir, toplam 240 AKTS, 8 yarıyıl. Yaşam ve Doğa Bilimleri Fakültesi altındadır. Mezuniyet için en az 2.00/4.00 GNO ve zorunlu staj (MBG 499 Yaz Stajı) gerekir. 3-4. sınıfta 10 adet Alan Teknik Seçmeli (MBGXXX) alınır. NOT: MBG, Biyomühendislik (BENG) bölümünden ayrı bir bölümdür.
 """
 
 
@@ -313,7 +315,7 @@ LIST_TRIGGERS = [
     "dersler hangileri", "dersler neler", "listele",
 ]
 
-LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025", "mimarlik": "2025", "isletme": "2025", "ekonomi": "2025", "siyaset": "2025"}
+LATEST_MUFREDAT = {"bilgisayar": "2025", "makine": "2025", "endustri": "2025", "elektrik": "2025", "insaat": "2025", "malzeme": "2025", "mimarlik": "2025", "isletme": "2025", "ekonomi": "2025", "siyaset": "2025", "psikoloji": "2021", "biyomuhendislik": "2021", "mbg": "2021"}
 
 
 # --- Otomatik bölüm tespiti ---
@@ -358,6 +360,25 @@ BOLUM_KEYWORDS: dict[str, list[str]] = {
         "uluslar arasi iliskiler", "political science",
         "international relations", "pols", "siyaset müh", "siyaset böl",
     ],
+    "psikoloji": [
+        "psikoloji", "psychology", "psikolog",
+        "psyc", "psyf", "psys", "psyt", "psyi", "psyp", "psyl",
+        "klinik psikoloji", "sosyal psikoloji", "gelişim psikolojisi",
+        "bilişsel psikoloji", "biliş psikolojisi", "anormal psikoloji",
+        "sağlık psikolojisi", "politik psikoloji", "nöropsikoloji",
+        "noropsikoloji", "eğitim psikolojisi",
+    ],
+    "biyomuhendislik": [
+        "biyomühendislik", "biyomuhendislik", "biyo mühendislik",
+        "biyo muhendislik", "bioengineering", "biyomedikal",
+        "biyomalzeme", "doku mühendisliği", "doku muhendisligi",
+        "biyoproses", "biyoenstrüman",
+    ],
+    "mbg": [
+        "moleküler biyoloji", "molekuler biyoloji", "moleküler biyoloji ve genetik",
+        "molekuler biyoloji ve genetik", "molecular biology", "genetik bölüm",
+        "genetik bol", "mbg", "moleküler genetik", "molekuler genetik",
+    ],
 }
 
 
@@ -370,8 +391,12 @@ def detect_bolum(question: str) -> str | None:
         "IE": "endustri", "EE": "elektrik", "CE": "insaat",
         "ARCH": "mimarlik", "BA": "isletme", "ECON": "ekonomi",
         "POLS": "siyaset",
+        "PSYC": "psikoloji", "PSYF": "psikoloji", "PSYS": "psikoloji",
+        "PSYT": "psikoloji", "PSYI": "psikoloji", "PSYP": "psikoloji",
+        "PSYL": "psikoloji", "PSYX": "psikoloji",
+        "BENG": "biyomuhendislik", "MBG": "mbg",
     }
-    code_match = re.search(r"\b(MSNE|COMP|ARCH|ECON|POLS|ME|IE|EE|CE|BA)\s*\d{2,4}\b", question.upper())
+    code_match = re.search(r"\b(MSNE|BENG|COMP|ARCH|ECON|POLS|PSYC|PSYF|PSYS|PSYT|PSYI|PSYP|PSYL|PSYX|MBG|ME|IE|EE|CE|BA)\s*\d{2,4}\b", question.upper())
     if code_match:
         return code_prefixes[code_match.group(1)]
     # 2) İsim tabanlı anahtar kelimeler
@@ -438,6 +463,12 @@ def parse_intent(question: str, bolum: str) -> dict | None:
         elif bolum == "siyaset":
             # POLS: tek aktif müfredat -> "2025"
             mufredat_yili = "2025"
+        elif bolum == "psikoloji":
+            # PSY: tek aktif katalog -> "2021"
+            mufredat_yili = "2021"
+        elif bolum in ("biyomuhendislik", "mbg"):
+            # BENG / MBG: tek aktif müfredat -> "2021" (tüm girişler)
+            mufredat_yili = "2021"
         else:
             # Bilgisayar Mühendisliği:
             # 2016-2020 -> "2016" | 2021-2022 -> "2021" | 2023-2024 -> "2023" | 2025+ -> "2025"
@@ -913,6 +944,9 @@ BOLUM_ADI_MAP = {
     "isletme": "İşletme",
     "ekonomi": "Ekonomi",
     "siyaset": "Siyaset Bilimi ve Uluslararası İlişkiler",
+    "psikoloji": "Psikoloji",
+    "biyomuhendislik": "Biyomühendislik",
+    "mbg": "Moleküler Biyoloji ve Genetik",
 }
 
 # AGÜ resmi bölüm web siteleri — "bilgi yok" durumunda yönlendirme için
@@ -927,6 +961,9 @@ BOLUM_LINKS = {
     "isletme": "https://ba.agu.edu.tr",
     "ekonomi": "https://econ.agu.edu.tr",
     "siyaset": "https://pols.agu.edu.tr",
+    "psikoloji": "https://psyw4.agu.edu.tr",
+    "biyomuhendislik": "https://beng.agu.edu.tr",
+    "mbg": "https://mbg.agu.edu.tr",
 }
 
 # Genel destek kanalları (her bölüm için aynı)
@@ -1354,6 +1391,12 @@ def answer_stream(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
     # 3) Liste modu — deterministik, stream yok
     if intent:
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
+        # tip='mufredat' kayıtları olmayan bölümler (örn. psikoloji: tip='ders_icerik',
+        # donem yok yil var) için deterministik liste boş kalır → LLM RAG'a düş.
+        mufredat_hits = [h for h in hits if h.get("metadata", {}).get("tip") == "mufredat"]
+        if not mufredat_hits:
+            hits = retrieve(question, k=max(k, 10), bolum=bolum, history=history)
+            return _make_llm_stream(question, hits, bolum, history, cache_key=cache_key)
         extra = retrieve(question, k=3, bolum=bolum, history=history, use_reranker=False)
         seen = {h["text"] for h in hits}
         for h in extra:
@@ -1434,12 +1477,18 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
 
     if intent:
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
-        extra = retrieve(question, k=3, bolum=bolum, history=history)
-        seen = {h["text"] for h in hits}
-        for h in extra:
-            if h["text"] not in seen:
-                hits.append(h)
-        list_mode = True
+        # tip='mufredat' içermeyen bölümler için (psikoloji ders_icerik) liste modunu atla
+        mufredat_hits = [h for h in hits if h.get("metadata", {}).get("tip") == "mufredat"]
+        if not mufredat_hits:
+            hits = retrieve(question, k=max(k, 10), bolum=bolum, history=history)
+            list_mode = False
+        else:
+            extra = retrieve(question, k=3, bolum=bolum, history=history)
+            seen = {h["text"] for h in hits}
+            for h in extra:
+                if h["text"] not in seen:
+                    hits.append(h)
+            list_mode = True
     else:
         hits = retrieve(question, k=k, bolum=bolum, history=history)
 

@@ -576,8 +576,8 @@ with st.sidebar:
         f"""
         <div class="sidebar-logo">
             <img src="{LOGO_DATA_URI}" alt="AGÜ" class="agu-logo" />
-            <h2>AGÜ Asistanı</h2>
-            <span>Yapay Zeka Destekli Rehber</span>
+            <h2>AGU Archivus</h2>
+            <span>Yapay Zeka Asistanı</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -596,6 +596,9 @@ with st.sidebar:
             "İşletme",
             "Ekonomi",
             "Siyaset Bilimi ve Uluslararası İlişkiler",
+            "Psikoloji",
+            "Biyomühendislik",
+            "Moleküler Biyoloji ve Genetik",
         ],
     )
     BOLUM_ID_MAP = {
@@ -609,6 +612,9 @@ with st.sidebar:
         "İşletme": "isletme",
         "Ekonomi": "ekonomi",
         "Siyaset Bilimi ve Uluslararası İlişkiler": "siyaset",
+        "Psikoloji": "psikoloji",
+        "Biyomühendislik": "biyomuhendislik",
+        "Moleküler Biyoloji ve Genetik": "mbg",
     }
     BOLUM_SVG = {
         "bilgisayar": (
@@ -677,6 +683,29 @@ with st.sidebar:
             '<path d="M12 3l7 4-7 4"/>'
             '<path d="M5 21V10"/>'
             '<path d="M19 21V14"/>'
+            '</svg></span>'
+        ),
+        "psikoloji": (
+            '<span class="bolum-emoji" title="Psikoloji" '
+            'style="font-family: \'Times New Roman\', serif; font-weight: 700; '
+            'font-size: 1.15em; line-height: 1;">Ψ</span>'
+        ),
+        "biyomuhendislik": (
+            '<span class="bolum-icon" title="Biyomühendislik">'
+            '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+            '<path d="M9 3c0 4 6 5 6 9s-6 5-6 9"/>'
+            '<path d="M15 3c0 4-6 5-6 9s6 5 6 9"/>'
+            '<path d="M8.5 7h7"/><path d="M8.5 17h7"/>'
+            '<path d="M10 5.5h4"/><path d="M10 18.5h4"/>'
+            '</svg></span>'
+        ),
+        "mbg": (
+            '<span class="bolum-icon" title="Moleküler Biyoloji ve Genetik">'
+            '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">'
+            '<circle cx="6" cy="7" r="2.5"/><circle cx="18" cy="7" r="2.5"/>'
+            '<circle cx="12" cy="17" r="2.5"/>'
+            '<path d="M8 8.5l3 6.5"/><path d="M16 8.5l-3 6.5"/>'
+            '<path d="M8 7h8"/>'
             '</svg></span>'
         ),
     }
@@ -848,6 +877,24 @@ SUGGESTIONS = {
         ("🏛️", "POLS 101 Siyaset Bilimine Giriş kaç AKTS?"),
         ("🧩", "POLS 299 Yaz Stajı I ön şartı nedir?"),
         ("📋", "3. sınıf güz dönemi POLS dersleri"),
+    ],
+    "psikoloji": [
+        ("📚", "Core Courses II dersleri neler?"),
+        ("🧠", "PSYC 104 Statistics for Psychology ön şartı nedir?"),
+        ("🧩", "Fundamental Cluster I'de hangi dersler var?"),
+        ("📋", "Tüm seçmeli seminer (PSYS) dersleri"),
+    ],
+    "biyomuhendislik": [
+        ("📚", "1. sınıf güz dönemi biyomühendislik dersleri neler?"),
+        ("🧬", "BENG 201 Biyokimya ön şartı nedir?"),
+        ("🧩", "4. sınıf alan seçimi nasıl yapılır?"),
+        ("📋", "Biyomühendislik stajı kaç gün ve nasıl değerlendirilir?"),
+    ],
+    "mbg": [
+        ("📚", "1. sınıf güz dönemi MBG dersleri neler?"),
+        ("🧬", "MBG 207 Organik Kimya ön şartı nedir?"),
+        ("🔬", "MBG alan teknik seçmeli dersleri neler?"),
+        ("🎓", "Moleküler Biyoloji ve Genetik mezuniyet koşulları neler?"),
     ],
 }
 
