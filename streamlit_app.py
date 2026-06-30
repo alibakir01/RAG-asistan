@@ -142,8 +142,8 @@ with chat_tab:
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Boş sohbette karşılama + öneri çipleri
-    if not st.session_state["messages"]:
+    # Boş sohbette karşılama + öneri çipleri (bekleyen soru yokken)
+    if not st.session_state["messages"] and "pending_q" not in st.session_state:
         st.markdown(
             '<div class="welcome"><h3>💬 Sormak istediğin bir şey var mı?</h3>'
             '<p>Aşağıdaki örneklerden birini seç ya da kendi sorunu yaz.</p></div>',
@@ -156,13 +156,13 @@ with chat_tab:
                     st.session_state["pending_q"] = text
                     st.rerun()
 
+    # Geçmişi çiz
     for m in st.session_state.messages:
         with st.chat_message(m["role"]):
             st.markdown(m["content"])
 
-    typed = st.chat_input("Örn: 2023 girişliyim 3. dönem hangi dersler var?")
-    soru = st.session_state.pop("pending_q", None) or typed
-
+    # Bekleyen soruyu (yazılan ya da öneri) geçmişin ALTINDA işle
+    soru = st.session_state.pop("pending_q", None)
     if soru:
         st.session_state.messages.append({"role": "user", "content": soru})
         with st.chat_message("user"):
@@ -181,9 +181,11 @@ with chat_tab:
                 cevap = f"Bir hata oluştu: {e}"
                 st.error(cevap)
         st.session_state.messages.append({"role": "assistant", "content": cevap})
-        # Öneri çiplerini gizlemek için yeniden çiz
-        if typed is None:
-            st.rerun()
+
+    # Mesaj kutusu HER ZAMAN en altta — yazılan soru pending'e gidip rerun ile altta işlenir
+    if prompt := st.chat_input("Örn: 2023 girişliyim 3. dönem hangi dersler var?"):
+        st.session_state["pending_q"] = prompt
+        st.rerun()
 
 # ============================ GPA HESAPLAYICI ============================
 with gpa_tab:

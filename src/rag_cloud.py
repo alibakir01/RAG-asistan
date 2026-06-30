@@ -637,14 +637,17 @@ def respond(soru: str, bolum=_AUTO, k: int | None = None) -> dict:
                 text = _render_elective_list(sec_kat, sec_hits, bolum_adi)
                 return {"mode": "list", "text": text, "token_iter": None, "bolum": bolum, "n": len(sec_hits)}
 
-    # 3) Dönem/sınıf ders listesi → deterministik (mufredat kaydı varsa)
+    # 3) Dönem/sınıf ders listesi → deterministik (yapılandırılmış mufredat varsa)
     if intent:
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
-        mufredat_hits = [h for h in hits if h["metadata"].get("tip") == "mufredat"]
+        # Sadece per-ders yapılandırılmış mufredat (ders_kodu dolu) deterministik render'a uygun.
+        # MBG gibi dönem-başına-tek-chunk (ders_kodu=None) bölümler RAG'a düşer.
+        mufredat_hits = [h for h in hits
+                         if h["metadata"].get("tip") == "mufredat" and h["metadata"].get("ders_kodu")]
         if mufredat_hits:
-            text = _render_list_answer(intent, hits, bolum_adi)
+            text = _render_list_answer(intent, mufredat_hits, bolum_adi)
             return {"mode": "list", "text": text, "token_iter": None, "bolum": bolum, "n": len(mufredat_hits)}
-        # mufredat kaydı yoksa (örn. psikoloji) genel RAG'a düş
+        # yapılandırılmış mufredat yoksa (MBG, psikoloji) genel RAG'a düş
 
     # 4) Genel RAG → LLM stream
     ctx, _ = retrieve(soru, bolum=bolum, k=k)
