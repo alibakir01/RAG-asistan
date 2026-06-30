@@ -1,23 +1,38 @@
-# AGÜ Mühendislik RAG Asistanı
+# AGÜ RAG Asistanı
 
-Abdullah Gül Üniversitesi mühendislik öğrencileri için Türkçe RAG asistanı.
-Müfredat, ders içerikleri, staj yönergesi ve internship handbook sorularını cevaplar.
+Abdullah Gül Üniversitesi öğrencileri için Türkçe RAG asistanı.
+Müfredat, ders içerikleri, seçmeli ders havuzları, staj yönergeleri, akademik takvim,
+Erasmus ve yatay geçiş sorularını cevaplar.
 
 ## Desteklenen Bölümler
+**Mühendislik & Mimarlık**
 - Bilgisayar Mühendisliği
 - Makine Mühendisliği
 - Endüstri Mühendisliği
 - Elektrik-Elektronik Mühendisliği
 - İnşaat Mühendisliği
-- Malzeme Bilimi ve Nanoteknoloji Mühendisliği
+- Malzeme Bilimi ve Nanoteknoloji Mühendisliği (MSNE)
+- Biyomühendislik (BENG)
 - Mimarlık
+
+**Yaşam & Doğa Bilimleri**
+- Moleküler Biyoloji ve Genetik (MBG)
+
+**İktisadi & İdari / Sosyal Bilimler**
 - İşletme
+- Ekonomi
+- Siyaset Bilimi ve Uluslararası İlişkiler
+- Psikoloji
+
+**Ortak kaynaklar:** Akademik takvim, Erasmus el kitabı, yatay geçiş yönergesi (tüm bölümlerde paylaşılır).
 
 ## Pipeline
-1. `src/ingest.py` (+ `ingest_me.py`, `ingest_elektrik.py`, `ingest_endustri.py`, `ingest_insaat.py`, `ingest_glb.py`) — ham dokümanları (docx, pdf, csv, xlsx) yapılandırılmış chunk'lara çevirir → `data/processed/*.jsonl`
-2. `src/embed.py` — tüm chunk'ları `multilingual-e5-large` ile embed edip ChromaDB'ye yazar → `data/chroma/`
-3. `src/rag.py` — retrieval + Groq (Llama 3.3 70B, bedava) ile cevap üretir
-4. `app.py` — Streamlit UI (bölüm seçimi + detay seviyesi)
+1. **Ingest** — `src/ingest_*.py` her bölüm/kaynak için ham dokümanları (docx, pdf, csv, xlsx, json) yapılandırılmış chunk'lara çevirir → `data/processed/*.jsonl`
+2. **Embed** — `src/embed.py` tüm chunk'ları `intfloat/multilingual-e5-large` ile embed edip ChromaDB'ye yazar → `data/chroma/`
+3. **Retrieval + LLM** — `src/rag.py` hibrit retrieval (vektör + BM25 + RRF füzyon) → cross-encoder reranker (`BAAI/bge-reranker-v2-m3`) → Groq (Llama 4 Scout 17B, bedava) ile Türkçe cevap üretir
+4. **UI** — `app.py` Streamlit arayüzü (bölüm seçimi, detay seviyesi, GNO hesaplama, otomatik bölüm tespiti)
+
+> **LLM sağlayıcı:** Varsayılan Groq (`meta-llama/llama-4-scout-17b-16e-instruct`). `LLM_PROVIDER=openrouter` veya `LLM_PROVIDER=auto` ile OpenRouter'a (gpt-oss-120b) geçiş/fallback desteklenir.
 
 ## Kurulum
 ```bash
@@ -34,20 +49,31 @@ API anahtarını buradan bedavaya al: https://console.groq.com/keys
 ```bash
 cp .env.example .env
 # .env dosyasını aç, GROQ_API_KEY=gsk_... yaz
+# (opsiyonel) OpenRouter için: OPENROUTER_API_KEY=..., LLM_PROVIDER=auto
 ```
 
 ## Çalıştırma
 ```bash
-# 1) Chunks üret (sadece veri değiştiğinde — her bölüm için ayrı script)
-python src/ingest.py
-python src/ingest_me.py
-python src/ingest_elektrik.py
-python src/ingest_endustri.py
-python src/ingest_insaat.py
-python src/ingest_malzeme.py
-python src/ingest_glb.py
+# 1) Chunks üret (sadece ilgili verinin kaynağı değiştiğinde, o bölümün scripti)
+python src/ingest.py                       # Bilgisayar
+python src/ingest_me.py                     # Makine
+python src/ingest_endustri.py               # Endüstri
+python src/ingest_elektrik.py               # Elektrik
+python src/ingest_insaat.py                 # İnşaat
+python src/ingest_malzeme.py                # Malzeme/MSNE
+python src/ingest_biyomuhendislik.py        # Biyomühendislik (+ _staj)
+python src/ingest_mimarlik.py               # Mimarlık (+ _secmeli, _staj)
+python src/ingest_isletme.py                # İşletme (+ _secmeli, _staj)
+python src/ingest_ekonomi.py                # Ekonomi (+ _secmeli, _staj_ders)
+python src/ingest_siyaset.py                # Siyaset
+python src/ingest_psikoloji.py              # Psikoloji (+ _mufredat, _staj, _secmeli)
+python src/ingest_mbg.py                    # Moleküler Biyoloji ve Genetik (+ _staj)
+python src/ingest_glb.py                    # Ortak seçmeli
+python src/ingest_takvim.py                 # Akademik takvim
+python src/ingest_erasmus.py                # Erasmus
+python src/ingest_yatay_gecis.py            # Yatay geçiş
 
-# 2) Embed + index (chunks değiştiğinde — tüm jsonl dosyalarını birden indeksler)
+# 2) Embed + index (chunks değiştiğinde — tüm data/processed/*.jsonl dosyasını indeksler)
 python src/embed.py
 
 # 3a) CLI sorgu
@@ -57,22 +83,32 @@ python src/rag.py "2023 girişliyim 3. dönem hangi dersler var"
 streamlit run app.py
 ```
 
-## Veri Kaynakları (`data/raw/`)
-- **Bilgisayar:** CMP_Liste_2016/2021/2023/2025.docx, AGU_Bilgisayar_Staj_Yonergesi_2026.docx, AGU-COMP-Internship-Handbook.docx, DERS_KATALOG_COMP_v1.pdf
-- **Makine:** Makine Mühendisliği/ klasörü (mufredat xlsx, kataloglar, staj akışı)
-- **Endüstri:** IE*_Syllabus.docx, IE_STAJ_PROGRAMI_KILAVUZU, ie_*_temiz.csv
-- **Elektrik:** AGU-EE-Curriculum-2019/2021.pdf, EE_staj_yonergesi_2019.pdf, EE_Capsule_Rules_TR.pdf, ee_*_temiz.csv
-- **İnşaat:** CE_Curriculum_2016/2021/2025.pdf, CE_Course_Catalogue.pdf, CE_Staj_Uygulamali_Egitim_Yonergesi.pdf, ce_*_temiz.csv
-- **Malzeme:** malzeme_mufredat.csv (Google Sheets'ten çekildi)
+> **İpucu — artımlı güncelleme:** `embed.py` koleksiyonu sıfırdan kurar (~15 dk). Tek bir bölüme küçük ekleme yaptıysan, sadece o chunk'ları `collection.upsert(...)` ile gömmek saniyeler sürer.
 
 ## Chunk İstatistikleri
+Bölüm bazlı (chunk metadata'sındaki `bolum` alanına göre):
+
 | Bölüm | Chunk Sayısı |
 |---|---|
-| Bilgisayar (`chunks.jsonl`) | 352 |
-| Makine (`me_chunks.jsonl`) | 192 |
-| Endüstri (`chunks_endustri.jsonl`) | 310 |
-| Elektrik (`chunks_elektrik.jsonl`) | 224 |
-| İnşaat (`chunks_insaat.jsonl`) | 277 |
-| Malzeme/MSNE (`chunks_malzeme.jsonl`) | 67 |
-| Genel/Ortak Seçmeli (`chunks_glb.jsonl`) | 25 |
-| **TOPLAM** | **1447** |
+| Bilgisayar | 357 |
+| Endüstri | 315 |
+| İnşaat | 282 |
+| Ortak (takvim, Erasmus, yatay geçiş) | 240 |
+| Elektrik | 229 |
+| Siyaset | 218 |
+| Mimarlık | 198 |
+| Makine | 197 |
+| Malzeme/MSNE | 184 |
+| İşletme | 157 |
+| Biyomühendislik | 154 |
+| Ekonomi | 134 |
+| Psikoloji | 122 |
+| Moleküler Biyoloji ve Genetik (MBG) | 75 |
+| **TOPLAM** | **2862** |
+
+## Yeni Bölüm Ekleme
+Bir bölüm sisteme tam entegre olmak için şu yerlere dokunulur:
+1. `src/ingest_<bolum>.py` — ham dokümandan chunk üretimi
+2. `src/rag.py` — `BOLUM_KEYWORDS`, `detect_bolum` kod prefix'i, `BOLUM_ADI_MAP`, `BOLUM_LINKS`, `LATEST_MUFREDAT`, `parse_intent` müfredat-yıl eşlemesi, `SYSTEM_PROMPT` bölüm kuralı
+3. `app.py` — bölüm seçim menüsü, `BOLUM_ID_MAP`, `BOLUM_SVG` ikonu, `SUGGESTIONS` örnek soruları
+4. `python src/embed.py` (veya artımlı upsert) ile ChromaDB'ye gömme
