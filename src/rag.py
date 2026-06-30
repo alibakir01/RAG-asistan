@@ -1393,7 +1393,7 @@ def answer_stream(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
         # tip='mufredat' kayıtları olmayan bölümler (örn. psikoloji: tip='ders_icerik',
         # donem yok yil var) için deterministik liste boş kalır → LLM RAG'a düş.
-        mufredat_hits = [h for h in hits if h.get("metadata", {}).get("tip") == "mufredat"]
+        mufredat_hits = [h for h in hits if h.get("metadata", {}).get("tip") == "mufredat" and h.get("metadata", {}).get("ders_kodu")]
         if not mufredat_hits:
             hits = retrieve(question, k=max(k, 10), bolum=bolum, history=history)
             return _make_llm_stream(question, hits, bolum, history, cache_key=cache_key)
@@ -1478,7 +1478,7 @@ def answer(question: str, k: int = TOP_K, bolum: str = "bilgisayar",
     if intent:
         hits = fetch_semester_courses(intent["mufredat_yili"], intent["donems"], bolum)
         # tip='mufredat' içermeyen bölümler için (psikoloji ders_icerik) liste modunu atla
-        mufredat_hits = [h for h in hits if h.get("metadata", {}).get("tip") == "mufredat"]
+        mufredat_hits = [h for h in hits if h.get("metadata", {}).get("tip") == "mufredat" and h.get("metadata", {}).get("ders_kodu")]
         if not mufredat_hits:
             hits = retrieve(question, k=max(k, 10), bolum=bolum, history=history)
             list_mode = False
