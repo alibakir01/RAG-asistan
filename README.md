@@ -106,6 +106,27 @@ Bölüm bazlı (chunk metadata'sındaki `bolum` alanına göre):
 | Moleküler Biyoloji ve Genetik (MBG) | 75 |
 | **TOPLAM** | **2862** |
 
+## Canlıya Alma (Streamlit Community Cloud — ücretsiz)
+Ağır yerel sürüm (`app.py`, torch+chroma) ücretsiz host'lara sığmaz; canlıda **hafif bulut
+sürümü** çalışır: `streamlit_app.py` → `src/rag_cloud.py` (Voyage + Pinecone + BM25, torch yok).
+
+**Tek seferlik hazırlık:**
+1. Pinecone'a veriyi yükle: `python veri_yukleyici.py` (2862 vektör, voyage-3.5, dim=1024).
+
+**Deploy:**
+1. Kodu GitHub'a push'la (gerekli dosyalar repoda: `streamlit_app.py`, `src/rag_cloud.py`,
+   `requirements.txt` (hafif), `data/processed/*.jsonl` (BM25 için), `data/term_aliases.json`).
+2. [share.streamlit.io](https://share.streamlit.io) → **New app** → repoyu seç →
+   **Main file path:** `streamlit_app.py`.
+3. **Advanced settings → Secrets:** `.streamlit/secrets.toml.example` içeriğini gerçek
+   anahtarlarla yapıştır (`VOYAGE_AI_KEY`, `PINECONE_API_KEY`, `GROQ_API_KEY`, `LLM_PROVIDER`).
+4. Deploy. (Anahtarlar `.gitignore` ile repodan korunur; sadece Secrets paneline girilir.)
+
+**Yerel test:** `streamlit run streamlit_app.py` (anahtarlar `.env`'den okunur).
+
+### Bulut API (opsiyonel)
+Ayrı bir frontend için: `uvicorn app_cloud:app --port 8000` → `POST /soru-sor {"soru": "..."}`.
+
 ## Yeni Bölüm Ekleme
 Bir bölüm sisteme tam entegre olmak için şu yerlere dokunulur:
 1. `src/ingest_<bolum>.py` — ham dokümandan chunk üretimi
