@@ -1,0 +1,72 @@
+{
+  "items": [
+    {
+      "id": "psik_008",
+      "bolum": "psikoloji",
+      "q": "PSYEXXX dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PSYEXXX"
+      ],
+      "judge_criteria": "PSYEXXX (Departmental Elective (Bölüm-içi Seçmeli)) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_001",
+      "bolum": "mbg",
+      "q": "MBG 206 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "MBG 206"
+      ],
+      "judge_criteria": "MBG 206 (Microbiology) dersinin ön şartı 'MBG 112'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "mbg_002",
+      "bolum": "mbg",
+      "q": "MBG 420 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "MBG 420"
+      ],
+      "judge_criteria": "MBG 420 (Introduction to Clinical Trials) dersinin ön şartı '-'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "mbg_004",
+      "bolum": "mbg",
+      "q": "MBG 304 kaç kredidir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MBG 304"
+      ],
+      "judge_criteria": "MBG 304 (Bioinformatics) dersinin kredisi 4'dir. Cevap 4 değerini vermeli."
+    },
+    {
+      "id": "mbg_007",
+      "bolum": "mbg",
+      "q": "MBG 210 dersi kaç AKTS?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MBG 210"
+      ],
+      "judge_criteria": "MBG 210 (Science and Ethics) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_011",
+      "bolum": "mbg",
+      "q": "MBG 406 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 406"
+      ],
+      "judge_criteria": "MBG 406 (Molecular Medicine) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    }
+  ]
+}

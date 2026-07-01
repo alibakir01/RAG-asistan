@@ -117,7 +117,7 @@ with st.sidebar:
 
     st.markdown(
         '<div style="text-align:center; opacity:0.5; font-size:0.75rem; margin-top:18px; line-height:1.5;">'
-        'Abdullah Gül Üniversitesi<br>Mühendislik Fakültesi</div>',
+        'Abdullah Gül Üniversitesi<br>Bölümleri</div>',
         unsafe_allow_html=True,
     )
 
@@ -146,7 +146,8 @@ with chat_tab:
     if not st.session_state["messages"] and "pending_q" not in st.session_state:
         st.markdown(
             '<div class="welcome"><h3>💬 Sormak istediğin bir şey var mı?</h3>'
-            '<p>Aşağıdaki örneklerden birini seç ya da kendi sorunu yaz.</p></div>',
+            '<p>Aşağıdaki örneklerden birini seç ya da kendi sorunu yaz.</p>'
+            '<p>AGU Archivus bir yapay zeka asistanıdır, hata yapabilir.</p></div>',
             unsafe_allow_html=True,
         )
         cols = st.columns(2)
