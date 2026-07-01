@@ -1,0 +1,35 @@
+name: Streamlit app'i uyanık tut
+
+# Streamlit Community Cloud app'i ~7 gün trafik olmazsa uyur.
+# Bu workflow ~5 günde bir app'in health endpoint'ine ping atarak uykuyu önler.
+#
+# KURULUM (bir kez): Deploy sonrası app URL'ini repo değişkeni olarak ekle:
+#   GitHub repo → Settings → Secrets and variables → Actions → Variables sekmesi
+#   → New repository variable → Name: STREAMLIT_APP_URL
+#   → Value: https://<senin-app>.streamlit.app   (sonda / olmadan)
+
+on:
+  schedule:
+    - cron: "0 6 */5 * *"   # ~her 5 günde bir, 06:00 UTC (aralık asla 5 günü aşmaz)
+  workflow_dispatch: {}       # Actions sekmesinden elle de tetiklenebilir
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: App'e ping at
+        run: |
+          URL="${{ vars.STREAMLIT_APP_URL }}"
+          if [ -z "$URL" ]; then
+            echo "::warning::STREAMLIT_APP_URL repo değişkeni tanımlı değil."
+            echo "Settings → Secrets and variables → Actions → Variables'a ekle. Şimdilik atlanıyor."
+            exit 0
+          fi
+          URL="${URL%/}"   # sondaki / varsa kaldır
+          echo "Ping: $URL/_stcore/health"
+          code=$(curl -sS -o /dev/null -w "%{http_code}" -L --max-time 60 "$URL/_stcore/health" || echo "000")
+          echo "HTTP durum: $code"
+          # 200 = sağlıklı; diğer kodlar bile app'i uyandırma isteğini tetiklemiş olur.
+          if [ "$code" = "000" ]; then
+            echo "::warning::App'e ulaşılamadı (timeout/ağ). Yine de uyandırma denendi."
+          fi
