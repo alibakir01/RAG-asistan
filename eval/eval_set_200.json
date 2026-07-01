@@ -1,0 +1,2355 @@
+{
+  "description": "200 soruluk, tüm bölümleri kapsayan otomatik eval seti (ground-truth veriden)",
+  "items": [
+    {
+      "id": "bilg_001",
+      "bolum": "bilgisayar",
+      "q": "COMP 414 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "COMP 414"
+      ],
+      "judge_criteria": "COMP 414 (Ağ Güvenliği) dersinin ön şartı 'COMP 308 Computer Networks'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "bilg_002",
+      "bolum": "bilgisayar",
+      "q": "PHYS 101 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "PHYS 101"
+      ],
+      "judge_criteria": "PHYS 101 (Fizik I) dersinin ön şartı '-'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "bilg_003",
+      "bolum": "bilgisayar",
+      "q": "COMP 482 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "COMP 482"
+      ],
+      "judge_criteria": "COMP 482 (Paralel Mimariler) dersinin ön şartı 'Description The main objective of the course is to build a strong understanding of the'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "bilg_004",
+      "bolum": "bilgisayar",
+      "q": "HIST 201 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "HIST 201"
+      ],
+      "judge_criteria": "HIST 201 (Türkiye Tarihi I) dersinin kredisi 2'dir. Cevap 2 değerini vermeli."
+    },
+    {
+      "id": "bilg_005",
+      "bolum": "bilgisayar",
+      "q": "COMP 455 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "COMP 455"
+      ],
+      "judge_criteria": "COMP 455 (Mühendisler ve Bilim Adamları için Linux) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "bilg_006",
+      "bolum": "bilgisayar",
+      "q": "HIST01 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "HIST01"
+      ],
+      "judge_criteria": "HIST01 (Türkiye Tarihi Havuzu - Seçmeli) dersinin kredisi 2'dir. Cevap 2 değerini vermeli."
+    },
+    {
+      "id": "bilg_007",
+      "bolum": "bilgisayar",
+      "q": "COMP 203 kaç kredidir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "COMP 203"
+      ],
+      "judge_criteria": "COMP 203 (Veri Yapıları ve Algoritmalar) dersinin kredisi 4'dir. Cevap 4 değerini vermeli."
+    },
+    {
+      "id": "bilg_008",
+      "bolum": "bilgisayar",
+      "q": "COMP 405 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "COMP 405"
+      ],
+      "judge_criteria": "COMP 405 (Görüntü İşleme) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "bilg_009",
+      "bolum": "bilgisayar",
+      "q": "PHYS 108 dersi kaç AKTS?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "PHYS 108"
+      ],
+      "judge_criteria": "PHYS 108 (Fizik Lab II) dersinin AKTS değeri 2'dir. Cevap 2 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_010",
+      "bolum": "bilgisayar",
+      "q": "SCIX0I dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "SCIX0I"
+      ],
+      "judge_criteria": "SCIX0I (Bilim Seçmeli-1*) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_011",
+      "bolum": "bilgisayar",
+      "q": "COMP 461 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "COMP 461"
+      ],
+      "judge_criteria": "COMP 461 (Derin Öğrenme) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_012",
+      "bolum": "bilgisayar",
+      "q": "COMP 114 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "COMP 114"
+      ],
+      "judge_criteria": "COMP 114 (Nesne Yönelimli Programlama) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_013",
+      "bolum": "bilgisayar",
+      "q": "EE 440 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "EE 440"
+      ],
+      "judge_criteria": "EE 440 (Beyin - Sinir Mühendisliği) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_014",
+      "bolum": "bilgisayar",
+      "q": "COMP 101 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "COMP 101"
+      ],
+      "judge_criteria": "COMP 101 (Programlama Sanatı) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_015",
+      "bolum": "bilgisayar",
+      "q": "EE 434 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "EE 434"
+      ],
+      "judge_criteria": "EE 434 (Sensörler ve Ölçüm Sistemleri) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_016",
+      "bolum": "bilgisayar",
+      "q": "COMP 206 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "COMP 206"
+      ],
+      "judge_criteria": "COMP 206 (Matematiksel Modelleme ve Algoritmik Düşünme) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_017",
+      "bolum": "bilgisayar",
+      "q": "EE 423 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "EE 423"
+      ],
+      "judge_criteria": "EE 423 (Fotonik) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_018",
+      "bolum": "bilgisayar",
+      "q": "COMP 491 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "8"
+      ],
+      "expected_codes": [
+        "COMP 491"
+      ],
+      "judge_criteria": "COMP 491 (Bitirme Projesi I) dersinin AKTS değeri 8'dir. Cevap 8 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_019",
+      "bolum": "bilgisayar",
+      "q": "COMP 463 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "COMP 463"
+      ],
+      "judge_criteria": "COMP 463 (Hesaplamalı Genomik) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "bilg_020",
+      "bolum": "bilgisayar",
+      "q": "COMP 303 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "COMP 303"
+      ],
+      "judge_criteria": "COMP 303 (İşletim Sistemleri) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "endu_001",
+      "bolum": "endustri",
+      "q": "IE 202 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "IE 202"
+      ],
+      "judge_criteria": "IE 202 (Statistics) dersinin ön şartı 'IE 201'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "endu_002",
+      "bolum": "endustri",
+      "q": "IE 388 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "IE 388"
+      ],
+      "judge_criteria": "IE 388 (Quality Control and Assurance) dersinin ön şartı 'IE 202'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "endu_003",
+      "bolum": "endustri",
+      "q": "GLB XXX dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "GLB XXX"
+      ],
+      "judge_criteria": "GLB XXX (Global Issues Elective I) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "endu_004",
+      "bolum": "endustri",
+      "q": "IE 458 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "IE 458"
+      ],
+      "judge_criteria": "IE 458 (Smart Transportation Systems) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "endu_005",
+      "bolum": "endustri",
+      "q": "IE 494 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "IE 494"
+      ],
+      "judge_criteria": "IE 494 (Industry 4.0) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "endu_006",
+      "bolum": "endustri",
+      "q": "IE 425 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "IE 425"
+      ],
+      "judge_criteria": "IE 425 (System Dynamics) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "endu_007",
+      "bolum": "endustri",
+      "q": "IE 416 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "IE 416"
+      ],
+      "judge_criteria": "IE 416 (Nonlinear Programming) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "endu_008",
+      "bolum": "endustri",
+      "q": "IETX dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "IETX"
+      ],
+      "judge_criteria": "IETX (Technical Elective) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "endu_009",
+      "bolum": "endustri",
+      "q": "IEDX kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "IEDX"
+      ],
+      "judge_criteria": "IEDX (IE Elective) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "endu_010",
+      "bolum": "endustri",
+      "q": "GLB 201 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "GLB 201"
+      ],
+      "judge_criteria": "GLB 201 (Food and Health) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "endu_011",
+      "bolum": "endustri",
+      "q": "IE 472 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "IE 472"
+      ],
+      "judge_criteria": "IE 472 (Production Planing and Scheduling) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "endu_012",
+      "bolum": "endustri",
+      "q": "IE 497 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "10"
+      ],
+      "expected_codes": [
+        "IE 497"
+      ],
+      "judge_criteria": "IE 497 (Systems Analysis and Design Project I) dersinin AKTS değeri 10'dir. Cevap 10 sayısını net vermeli."
+    },
+    {
+      "id": "endu_013",
+      "bolum": "endustri",
+      "q": "OHS 402 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "1"
+      ],
+      "expected_codes": [
+        "OHS 402"
+      ],
+      "judge_criteria": "OHS 402 (Occupational Health and Safety II) dersinin AKTS değeri 1'dir. Cevap 1 sayısını net vermeli."
+    },
+    {
+      "id": "endu_014",
+      "bolum": "endustri",
+      "q": "IE 478 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "IE 478"
+      ],
+      "judge_criteria": "IE 478 (Scheduling) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "endu_015",
+      "bolum": "endustri",
+      "q": "IE 400 dersi kaç AKTS?",
+      "expected_keywords": [
+        "20"
+      ],
+      "expected_codes": [
+        "IE 400"
+      ],
+      "judge_criteria": "IE 400 (Workplace Experience) dersinin AKTS değeri 20'dir. Cevap 20 sayısını net vermeli."
+    },
+    {
+      "id": "endu_016",
+      "bolum": "endustri",
+      "q": "IE 482 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "IE 482"
+      ],
+      "judge_criteria": "IE 482 (Economics of Healthcare) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "insa_001",
+      "bolum": "insaat",
+      "q": "CE 441 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "CE 441"
+      ],
+      "judge_criteria": "CE 441 (Materials for Sustainable Built Environment) dersinin ön şartı '-'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "insa_002",
+      "bolum": "insaat",
+      "q": "CE 482 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "CE 482"
+      ],
+      "judge_criteria": "CE 482 (Computational Structural Analysis and Design) dersinin ön şartı 'CE383 - Structural Analysis'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "insa_003",
+      "bolum": "insaat",
+      "q": "CE 462 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "CE 462"
+      ],
+      "judge_criteria": "CE 462 (Introduction to GIS) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "insa_004",
+      "bolum": "insaat",
+      "q": "CE 445 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "CE 445"
+      ],
+      "judge_criteria": "CE 445 (Sustainable Concrete Technology) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "insa_005",
+      "bolum": "insaat",
+      "q": "CE 221 kaç kredidir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "CE 221"
+      ],
+      "judge_criteria": "CE 221 (Mechanics) dersinin kredisi 4'dir. Cevap 4 değerini vermeli."
+    },
+    {
+      "id": "insa_006",
+      "bolum": "insaat",
+      "q": "ENG 102 kaç kredidir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "ENG 102"
+      ],
+      "judge_criteria": "ENG 102 (English II) dersinin kredisi 4'dir. Cevap 4 değerini vermeli."
+    },
+    {
+      "id": "insa_007",
+      "bolum": "insaat",
+      "q": "CETX4 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "CETX4"
+      ],
+      "judge_criteria": "CETX4 (Technical Elective) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "insa_008",
+      "bolum": "insaat",
+      "q": "CE 464 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "CE 464"
+      ],
+      "judge_criteria": "CE 464 (Ground Improvement) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "insa_009",
+      "bolum": "insaat",
+      "q": "MATH 151 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "MATH 151"
+      ],
+      "judge_criteria": "MATH 151 (Calculus I) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "insa_010",
+      "bolum": "insaat",
+      "q": "TURK 102 dersi kaç AKTS?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "TURK 102"
+      ],
+      "judge_criteria": "TURK 102 (Turkish II) dersinin AKTS değeri 2'dir. Cevap 2 sayısını net vermeli."
+    },
+    {
+      "id": "insa_011",
+      "bolum": "insaat",
+      "q": "ENG 101 dersi kaç AKTS?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "ENG 101"
+      ],
+      "judge_criteria": "ENG 101 (English I) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "insa_012",
+      "bolum": "insaat",
+      "q": "CE 481 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "CE 481"
+      ],
+      "judge_criteria": "CE 481 (Fundamentals of Steel Design) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "insa_013",
+      "bolum": "insaat",
+      "q": "CE 444 dersi kaç AKTS?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "CE 444"
+      ],
+      "judge_criteria": "CE 444 (The Natural and Built Environment) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "insa_014",
+      "bolum": "insaat",
+      "q": "CE 404 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "29"
+      ],
+      "expected_codes": [
+        "CE 404"
+      ],
+      "judge_criteria": "CE 404 (Workplace Experience) dersinin AKTS değeri 29'dir. Cevap 29 sayısını net vermeli."
+    },
+    {
+      "id": "insa_015",
+      "bolum": "insaat",
+      "q": "CE 442 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "CE 442"
+      ],
+      "judge_criteria": "CE 442 (Construction Waste Management) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "insa_016",
+      "bolum": "insaat",
+      "q": "CE 452 dersi kaç AKTS?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "CE 452"
+      ],
+      "judge_criteria": "CE 452 (Railway Design) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "siya_001",
+      "bolum": "siyaset",
+      "q": "POLS 202 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "POLS 202"
+      ],
+      "judge_criteria": "POLS 202 (Araştırma Yöntemleri II) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "siya_002",
+      "bolum": "siyaset",
+      "q": "POLS 494 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "POLS 494"
+      ],
+      "judge_criteria": "POLS 494 (İletişim Becerileri) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "siya_003",
+      "bolum": "siyaset",
+      "q": "POLS 335 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "POLS 335"
+      ],
+      "judge_criteria": "POLS 335 (Milliyetçilik Teorileri) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "siya_004",
+      "bolum": "siyaset",
+      "q": "POLS 336 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "POLS 336"
+      ],
+      "judge_criteria": "POLS 336 (Din ve Siyaset) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "siya_005",
+      "bolum": "siyaset",
+      "q": "POLS 312 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 312"
+      ],
+      "judge_criteria": "POLS 312 (Karşılaştırmalı Hükümet Sistemleri) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_006",
+      "bolum": "siyaset",
+      "q": "POLS 459 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 459"
+      ],
+      "judge_criteria": "POLS 459 (Rusya Siyasi Hayatı) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_007",
+      "bolum": "siyaset",
+      "q": "POLS 353 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 353"
+      ],
+      "judge_criteria": "POLS 353 (Tarihsel Sosyoloji) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_008",
+      "bolum": "siyaset",
+      "q": "POLS 344 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 344"
+      ],
+      "judge_criteria": "POLS 344 (Ulus-Ötesi Siyaset) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_009",
+      "bolum": "siyaset",
+      "q": "SOC 201 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "SOC 201"
+      ],
+      "judge_criteria": "SOC 201 (Sosyolojiye Giriş) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_010",
+      "bolum": "siyaset",
+      "q": "POLS 383 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 383"
+      ],
+      "judge_criteria": "POLS 383 (Veri Odaklı Siyaset) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_011",
+      "bolum": "siyaset",
+      "q": "POLS 302 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 302"
+      ],
+      "judge_criteria": "POLS 302 (Siyasi Teoriler) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_012",
+      "bolum": "siyaset",
+      "q": "GLB 104 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "GLB 104"
+      ],
+      "judge_criteria": "GLB 104 (AGU Ways II) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "siya_013",
+      "bolum": "siyaset",
+      "q": "POLS 462 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 462"
+      ],
+      "judge_criteria": "POLS 462 (İleri Alan Çalışması) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_014",
+      "bolum": "siyaset",
+      "q": "POLS 457 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 457"
+      ],
+      "judge_criteria": "POLS 457 (Sürdürülebilir Kalkınma Siyaseti) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_015",
+      "bolum": "siyaset",
+      "q": "POLS 384 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 384"
+      ],
+      "judge_criteria": "POLS 384 (Global Güvenlik ve Blockchain) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "siya_016",
+      "bolum": "siyaset",
+      "q": "POLS 401 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "POLS 401"
+      ],
+      "judge_criteria": "POLS 401 (Siyasi Ekonomi) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mima_001",
+      "bolum": "mimarlik",
+      "q": "ARCH 102 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "ARCH 102"
+      ],
+      "judge_criteria": "ARCH 102 (Tasarım 2: Mimarlığa Giriş) dersinin ön şartı 'ARCH101'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "mima_002",
+      "bolum": "mimarlik",
+      "q": "ARCH 301 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "ARCH 301"
+      ],
+      "judge_criteria": "ARCH 301 (Mimari Tasarım 3) dersinin ön şartı 'ARCH 202'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "mima_003",
+      "bolum": "mimarlik",
+      "q": "ARCG 303 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "ARCG 303"
+      ],
+      "judge_criteria": "ARCG 303 (Neolitik Yerleşimler Tarihi) dersinin kredisi 2'dir. Cevap 2 değerini vermeli."
+    },
+    {
+      "id": "mima_004",
+      "bolum": "mimarlik",
+      "q": "ARCG 105 kaç kredidir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "ARCG 105"
+      ],
+      "judge_criteria": "ARCG 105 (Model Yapımı) dersinin kredisi 2'dir. Cevap 2 değerini vermeli."
+    },
+    {
+      "id": "mima_005",
+      "bolum": "mimarlik",
+      "q": "ARCG 103 kaç kredidir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "ARCG 103"
+      ],
+      "judge_criteria": "ARCG 103 (Mimari İmge & Malzeme) dersinin kredisi 2'dir. Cevap 2 değerini vermeli."
+    },
+    {
+      "id": "mima_006",
+      "bolum": "mimarlik",
+      "q": "ARCD 411 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "ARCD 411"
+      ],
+      "judge_criteria": "ARCD 411 (Kentsel Trafik Planlaması) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "mima_007",
+      "bolum": "mimarlik",
+      "q": "ARCH 223 dersi kaç AKTS?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "ARCH 223"
+      ],
+      "judge_criteria": "ARCH 223 (Strüktür 1) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "mima_008",
+      "bolum": "mimarlik",
+      "q": "ARCG 307 dersi kaç AKTS?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "ARCG 307"
+      ],
+      "judge_criteria": "ARCG 307 (İslam Sanat & Mimarlığına Giriş) dersinin AKTS değeri 3'dir. Cevap 3 sayısını net vermeli."
+    },
+    {
+      "id": "mima_009",
+      "bolum": "mimarlik",
+      "q": "ARCD X5X dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ARCD X5X"
+      ],
+      "judge_criteria": "ARCD X5X (Practice in Research Activities) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mima_010",
+      "bolum": "mimarlik",
+      "q": "ARCD 108 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ARCD 108"
+      ],
+      "judge_criteria": "ARCD 108 (Kent Mekanının Üretimi) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mima_011",
+      "bolum": "mimarlik",
+      "q": "ARCX 142 dersi kaç AKTS?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "ARCX 142"
+      ],
+      "judge_criteria": "ARCX 142 (Dijital Öğrenme Platformu Başlangıç Seviyesi Transfer Seçmelisi 2) dersinin AKTS değeri 3'dir. Cevap 3 sayısını net vermeli."
+    },
+    {
+      "id": "mima_012",
+      "bolum": "mimarlik",
+      "q": "ARCH 224 dersi kaç AKTS?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "ARCH 224"
+      ],
+      "judge_criteria": "ARCH 224 (Strüktür 2) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "mima_013",
+      "bolum": "mimarlik",
+      "q": "ARCA 104 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "ARCA 104"
+      ],
+      "judge_criteria": "ARCA 104 (Tasarım Üretimi) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "mima_014",
+      "bolum": "mimarlik",
+      "q": "GLB1XX dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "GLB1XX"
+      ],
+      "judge_criteria": "GLB1XX (Global Issues Elective) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "mima_015",
+      "bolum": "mimarlik",
+      "q": "ARCA 105 dersi kaç AKTS?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "ARCA 105"
+      ],
+      "judge_criteria": "ARCA 105 (Tasarım Uygulamaları Stüdyosu) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "mima_016",
+      "bolum": "mimarlik",
+      "q": "CP 100 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "1"
+      ],
+      "expected_codes": [
+        "CP 100"
+      ],
+      "judge_criteria": "CP 100 (Kariyer Planlama) dersinin AKTS değeri 1'dir. Cevap 1 sayısını net vermeli."
+    },
+    {
+      "id": "elek_001",
+      "bolum": "elektrik",
+      "q": "EE 299 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "EE 299"
+      ],
+      "judge_criteria": "EE 299 (Summer Training 1) dersinin ön şartı '3 Dönem Şartı'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "elek_002",
+      "bolum": "elektrik",
+      "q": "EE 4002 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "EE 4002"
+      ],
+      "judge_criteria": "EE 4002 (Robotic System Design Capsule) dersinin ön şartı 'EE 3002, MATH 103'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "elek_003",
+      "bolum": "elektrik",
+      "q": "HIST 2XX kaç kredidir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "HIST 2XX"
+      ],
+      "judge_criteria": "HIST 2XX (History of Turkey Pool 1) dersinin kredisi 2'dir. Cevap 2 değerini vermeli."
+    },
+    {
+      "id": "elek_004",
+      "bolum": "elektrik",
+      "q": "GLB 102 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "GLB 102"
+      ],
+      "judge_criteria": "GLB 102 (Innovation and Entrepreneurship) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "elek_005",
+      "bolum": "elektrik",
+      "q": "EE 4003 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "8"
+      ],
+      "expected_codes": [
+        "EE 4003"
+      ],
+      "judge_criteria": "EE 4003 (Power Electronics Motor Drives Design Capsule) dersinin kredisi 8'dir. Cevap 8 değerini vermeli."
+    },
+    {
+      "id": "elek_006",
+      "bolum": "elektrik",
+      "q": "GLB 3XX dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "GLB 3XX"
+      ],
+      "judge_criteria": "GLB 3XX (Global Issues Elective IV) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "elek_007",
+      "bolum": "elektrik",
+      "q": "EETx1 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "10"
+      ],
+      "expected_codes": [
+        "EETx1"
+      ],
+      "judge_criteria": "EETx1 (Technical Electives 1) dersinin AKTS değeri 10'dir. Cevap 10 sayısını net vermeli."
+    },
+    {
+      "id": "elek_008",
+      "bolum": "elektrik",
+      "q": "MATH 301 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MATH 301"
+      ],
+      "judge_criteria": "MATH 301 (Probability and Statistics) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "elek_009",
+      "bolum": "elektrik",
+      "q": "GLB 202 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "GLB 202"
+      ],
+      "judge_criteria": "GLB 202 (Immigration and Population) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "elek_010",
+      "bolum": "elektrik",
+      "q": "MATH 154 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "MATH 154"
+      ],
+      "judge_criteria": "MATH 154 (Calculus II for EE) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "elek_011",
+      "bolum": "elektrik",
+      "q": "MATH 161 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "7"
+      ],
+      "expected_codes": [
+        "MATH 161"
+      ],
+      "judge_criteria": "MATH 161 (Calculus I for Electrical-Electronics Eng.) dersinin AKTS değeri 7'dir. Cevap 7 sayısını net vermeli."
+    },
+    {
+      "id": "elek_012",
+      "bolum": "elektrik",
+      "q": "PHYS 104 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PHYS 104"
+      ],
+      "judge_criteria": "PHYS 104 (Physics II for EE) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "elek_013",
+      "bolum": "elektrik",
+      "q": "MATH 153 dersi kaç AKTS?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "MATH 153"
+      ],
+      "judge_criteria": "MATH 153 (Calculus I for EE) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "elek_014",
+      "bolum": "elektrik",
+      "q": "GLB 1XX kaç AKTS değerinde?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "GLB 1XX"
+      ],
+      "judge_criteria": "GLB 1XX (Global Issues Elective I) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "elek_015",
+      "bolum": "elektrik",
+      "q": "EE 202 dersi kaç AKTS?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "EE 202"
+      ],
+      "judge_criteria": "EE 202 (Electric Circuits II (EE 2100 Capsule)) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "elek_016",
+      "bolum": "elektrik",
+      "q": "HIST 01 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "HIST 01"
+      ],
+      "judge_criteria": "HIST 01 (History of Turkey Pool I) dersinin AKTS değeri 2'dir. Cevap 2 sayısını net vermeli."
+    },
+    {
+      "id": "ekon_001",
+      "bolum": "ekonomi",
+      "q": "ECON 303 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "ECON 303"
+      ],
+      "judge_criteria": "ECON 303 (International Economics) dersinin ön şartı 'ECON 102'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "ekon_002",
+      "bolum": "ekonomi",
+      "q": "ECON 358 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "ECON 358"
+      ],
+      "judge_criteria": "ECON 358 (ECONOMIES OF SOUTH ASIA) dersinin ön şartı 'ECON101'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "ekon_003",
+      "bolum": "ekonomi",
+      "q": "ECON 101 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "ECON 101"
+      ],
+      "judge_criteria": "ECON 101 (Exploring Economics I) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "ekon_004",
+      "bolum": "ekonomi",
+      "q": "ECN 442 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "ECN 442"
+      ],
+      "judge_criteria": "ECN 442 (General Transfer Elective 1) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "ekon_005",
+      "bolum": "ekonomi",
+      "q": "ECN 441 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "ECN 441"
+      ],
+      "judge_criteria": "ECN 441 (General Transfer Elective 3) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "ekon_006",
+      "bolum": "ekonomi",
+      "q": "ECON 413 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "ECON 413"
+      ],
+      "judge_criteria": "ECON 413 (CURRENT TOPICS IN MICROECONOMICS) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "ekon_007",
+      "bolum": "ekonomi",
+      "q": "ECON 4NX2 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "ECON 4NX2"
+      ],
+      "judge_criteria": "ECON 4NX2 (Non-Departmental Elective (4AKTS)) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "ekon_008",
+      "bolum": "ekonomi",
+      "q": "ECN 448 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ECN 448"
+      ],
+      "judge_criteria": "ECN 448 (General Transfer Elective 4) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "ekon_009",
+      "bolum": "ekonomi",
+      "q": "MATH 121 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "MATH 121"
+      ],
+      "judge_criteria": "MATH 121 (Introductory Mathematics I) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "ekon_010",
+      "bolum": "ekonomi",
+      "q": "ECON 327 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ECON 327"
+      ],
+      "judge_criteria": "ECON 327 (INTRODUCTION TO FORECASTING FOR ECONOMICS AND BUSINESS) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "ekon_011",
+      "bolum": "ekonomi",
+      "q": "CP 100 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "1"
+      ],
+      "expected_codes": [
+        "CP 100"
+      ],
+      "judge_criteria": "CP 100 (Career Planning) dersinin AKTS değeri 1'dir. Cevap 1 sayısını net vermeli."
+    },
+    {
+      "id": "ekon_012",
+      "bolum": "ekonomi",
+      "q": "ECON 5NX4 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ECON 5NX4"
+      ],
+      "judge_criteria": "ECON 5NX4 (Non-Departmental Elective (5AKTS)) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "ekon_013",
+      "bolum": "ekonomi",
+      "q": "ECN 444 dersi kaç AKTS?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "ECN 444"
+      ],
+      "judge_criteria": "ECN 444 (General Transfer Elective 3) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "ekon_014",
+      "bolum": "ekonomi",
+      "q": "ECON 341 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ECON 341"
+      ],
+      "judge_criteria": "ECON 341 (TURKISH ECONOMY) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "ekon_015",
+      "bolum": "ekonomi",
+      "q": "ECON 5NX1 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ECON 5NX1"
+      ],
+      "judge_criteria": "ECON 5NX1 (Non-Departmental Elective (5AKTS)) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "isle_001",
+      "bolum": "isletme",
+      "q": "BA 407 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "BA 407"
+      ],
+      "judge_criteria": "BA 407 (Financial Derivatives) dersinin ön şartı 'BA 207'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "isle_002",
+      "bolum": "isletme",
+      "q": "BA 206 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "BA 206"
+      ],
+      "judge_criteria": "BA 206 (Managerial Accounting) dersinin ön şartı 'BA 205'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "isle_003",
+      "bolum": "isletme",
+      "q": "BA 452 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "BA 452"
+      ],
+      "judge_criteria": "BA 452 (Interpersonal Skills in Organizations) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "isle_004",
+      "bolum": "isletme",
+      "q": "BA 461 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "BA 461"
+      ],
+      "judge_criteria": "BA 461 (SME Marketing) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "isle_005",
+      "bolum": "isletme",
+      "q": "BA 225 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "BA 225"
+      ],
+      "judge_criteria": "BA 225 (Microeconomics) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "isle_006",
+      "bolum": "isletme",
+      "q": "BA 429 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "BA 429"
+      ],
+      "judge_criteria": "BA 429 (Technology Management) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "isle_007",
+      "bolum": "isletme",
+      "q": "BA 475 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BA 475"
+      ],
+      "judge_criteria": "BA 475 (Corporate Strategy) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "isle_008",
+      "bolum": "isletme",
+      "q": "BADX3*** kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BADX3***"
+      ],
+      "judge_criteria": "BADX3*** (Departmental Elective) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "isle_009",
+      "bolum": "isletme",
+      "q": "BADX6*** kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BADX6***"
+      ],
+      "judge_criteria": "BADX6*** (Departmental Elective) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "isle_010",
+      "bolum": "isletme",
+      "q": "BA 326 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BA 326"
+      ],
+      "judge_criteria": "BA 326 (Law for Managers) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "isle_011",
+      "bolum": "isletme",
+      "q": "BA 311 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BA 311"
+      ],
+      "judge_criteria": "BA 311 (Globalization and International Business) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "isle_012",
+      "bolum": "isletme",
+      "q": "BANX4** kaç AKTS değerinde?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "BANX4**"
+      ],
+      "judge_criteria": "BANX4** (Non-Departmental Elective) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "isle_013",
+      "bolum": "isletme",
+      "q": "BAG 493 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "BAG 493"
+      ],
+      "judge_criteria": "BAG 493 (General Transfer Elective 3) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "isle_014",
+      "bolum": "isletme",
+      "q": "TURK 102 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "TURK 102"
+      ],
+      "judge_criteria": "TURK 102 (Turkish II) dersinin AKTS değeri 2'dir. Cevap 2 sayısını net vermeli."
+    },
+    {
+      "id": "isle_015",
+      "bolum": "isletme",
+      "q": "BA 446 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BA 446"
+      ],
+      "judge_criteria": "BA 446 (Introduction to Python Programming) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "biyo_001",
+      "bolum": "biyomuhendislik",
+      "q": "BENG 316 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "BENG 316"
+      ],
+      "judge_criteria": "BENG 316 (Biyomühendislik Laboratuvarı II) dersinin ön şartı 'BENG 204; BENG 207'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "biyo_002",
+      "bolum": "biyomuhendislik",
+      "q": "BENG 201 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "BENG 201"
+      ],
+      "judge_criteria": "BENG 201 (Biyokimya) dersinin ön şartı 'BENG 103'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "biyo_003",
+      "bolum": "biyomuhendislik",
+      "q": "PHYS 102 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "PHYS 102"
+      ],
+      "judge_criteria": "PHYS 102 (Fizik II) dersinin kredisi 4'dir. Cevap 4 değerini vermeli."
+    },
+    {
+      "id": "biyo_004",
+      "bolum": "biyomuhendislik",
+      "q": "PHYS 101 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "PHYS 101"
+      ],
+      "judge_criteria": "PHYS 101 (Fizik I) dersinin kredisi 4'dir. Cevap 4 değerini vermeli."
+    },
+    {
+      "id": "biyo_005",
+      "bolum": "biyomuhendislik",
+      "q": "TURK 102 kaç kredidir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "TURK 102"
+      ],
+      "judge_criteria": "TURK 102 (Türkçe II) dersinin kredisi 2'dir. Cevap 2 değerini vermeli."
+    },
+    {
+      "id": "biyo_006",
+      "bolum": "biyomuhendislik",
+      "q": "BENG 101 kaç kredidir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "BENG 101"
+      ],
+      "judge_criteria": "BENG 101 (Biyomühendisliğe Giriş) dersinin kredisi 2'dir. Cevap 2 değerini vermeli."
+    },
+    {
+      "id": "biyo_007",
+      "bolum": "biyomuhendislik",
+      "q": "MBG 410 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 410"
+      ],
+      "judge_criteria": "MBG 410 (Mikroarray Veri Analizleri) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "biyo_008",
+      "bolum": "biyomuhendislik",
+      "q": "MBG 409 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 409"
+      ],
+      "judge_criteria": "MBG 409 (Kanser Biyolojisi) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "biyo_009",
+      "bolum": "biyomuhendislik",
+      "q": "MBG 430 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 430"
+      ],
+      "judge_criteria": "MBG 430 (Viroloji) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "biyo_010",
+      "bolum": "biyomuhendislik",
+      "q": "BENG 418 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BENG 418"
+      ],
+      "judge_criteria": "BENG 418 (Makine Öğrenmesi) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "biyo_011",
+      "bolum": "biyomuhendislik",
+      "q": "BENG 305 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BENG 305"
+      ],
+      "judge_criteria": "BENG 305 (Yapay Organlar) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "biyo_012",
+      "bolum": "biyomuhendislik",
+      "q": "BENG 436 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BENG 436"
+      ],
+      "judge_criteria": "BENG 436 (İlaç dizaynı ve keşfi) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "biyo_013",
+      "bolum": "biyomuhendislik",
+      "q": "MBG 411 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 411"
+      ],
+      "judge_criteria": "MBG 411 (Model Organizmalar) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "biyo_014",
+      "bolum": "biyomuhendislik",
+      "q": "BENG 412 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BENG 412"
+      ],
+      "judge_criteria": "BENG 412 (Biyomedikal Mühendisliği için Sayısal Yöntemler) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "biyo_015",
+      "bolum": "biyomuhendislik",
+      "q": "BENG 443 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "BENG 443"
+      ],
+      "judge_criteria": "BENG 443 (Biyomühendislikte Düzenlemeler ve Fikri Mülkiyet Hakları) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "maki_001",
+      "bolum": "makine",
+      "q": "MATH205 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "MATH205"
+      ],
+      "judge_criteria": "MATH205 (Differential Equations) dersinin ön şartı 'MATH151, MATH152'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "maki_002",
+      "bolum": "makine",
+      "q": "ME303 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "ME303"
+      ],
+      "judge_criteria": "ME303 (Manufacturing Technologies) dersinin ön şartı 'ME218'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "maki_003",
+      "bolum": "makine",
+      "q": "OHS402 kaç kredidir?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "OHS402"
+      ],
+      "judge_criteria": "OHS402 (Occupational Health and Safety II) dersinin kredisi 2'dir. Cevap 2 değerini vermeli."
+    },
+    {
+      "id": "maki_004",
+      "bolum": "makine",
+      "q": "ME 301 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "ME 301"
+      ],
+      "judge_criteria": "ME 301 (Machine Elements) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "maki_005",
+      "bolum": "makine",
+      "q": "ME 316 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "ME 316"
+      ],
+      "judge_criteria": "ME 316 (Experimental Engineering) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "maki_006",
+      "bolum": "makine",
+      "q": "GLB 301 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "GLB 301"
+      ],
+      "judge_criteria": "GLB 301 (Sustainability) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "maki_007",
+      "bolum": "makine",
+      "q": "TURK 101 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "2"
+      ],
+      "expected_codes": [
+        "TURK 101"
+      ],
+      "judge_criteria": "TURK 101 (Turkish I) dersinin AKTS değeri 2'dir. Cevap 2 sayısını net vermeli."
+    },
+    {
+      "id": "maki_008",
+      "bolum": "makine",
+      "q": "MATH152 dersi kaç AKTS?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "MATH152"
+      ],
+      "judge_criteria": "MATH152 (Calculus II) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "maki_009",
+      "bolum": "makine",
+      "q": "ME 214 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "ME 214"
+      ],
+      "judge_criteria": "ME 214 (Mechatronics) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "maki_010",
+      "bolum": "makine",
+      "q": "OHS 401 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "1"
+      ],
+      "expected_codes": [
+        "OHS 401"
+      ],
+      "judge_criteria": "OHS 401 (Occup. Health and Safety 1) dersinin AKTS değeri 1'dir. Cevap 1 sayısını net vermeli."
+    },
+    {
+      "id": "maki_011",
+      "bolum": "makine",
+      "q": "PHYS101 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PHYS101"
+      ],
+      "judge_criteria": "PHYS101 (Physics I) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "maki_012",
+      "bolum": "makine",
+      "q": "ME 303 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ME 303"
+      ],
+      "judge_criteria": "ME 303 (Manufacturing Technologies) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "maki_013",
+      "bolum": "makine",
+      "q": "ME 354 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ME 354"
+      ],
+      "judge_criteria": "ME 354 (Numer. Anal. with Eng. App.) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "maki_014",
+      "bolum": "makine",
+      "q": "ME317 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "ME317"
+      ],
+      "judge_criteria": "ME317 (Fluid Mechanics) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "malz_001",
+      "bolum": "malzeme",
+      "q": "MSNE 321 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "MSNE 321"
+      ],
+      "judge_criteria": "MSNE 321 (Kompleks Analiz ve Uygulamaları) dersinin ön şartı 'MATH 152'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "malz_002",
+      "bolum": "malzeme",
+      "q": "MSNE 303 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "MSNE 303"
+      ],
+      "judge_criteria": "MSNE 303 (Fizikokimya) dersinin ön şartı 'CHEM 101'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "malz_003",
+      "bolum": "malzeme",
+      "q": "MSNE 404 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "14"
+      ],
+      "expected_codes": [
+        "MSNE 404"
+      ],
+      "judge_criteria": "MSNE 404 (İşyeri Deneyimi) dersinin kredisi 14'dir. Cevap 14 değerini vermeli."
+    },
+    {
+      "id": "malz_004",
+      "bolum": "malzeme",
+      "q": "MSNETX1 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "MSNETX1"
+      ],
+      "judge_criteria": "MSNETX1 (Teknik Seçmeli-I) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "malz_005",
+      "bolum": "malzeme",
+      "q": "MSNE 403 kaç kredidir?",
+      "expected_keywords": [
+        "1"
+      ],
+      "expected_codes": [
+        "MSNE 403"
+      ],
+      "judge_criteria": "MSNE 403 (Yaz Stajı) dersinin kredisi 1'dir. Cevap 1 değerini vermeli."
+    },
+    {
+      "id": "malz_006",
+      "bolum": "malzeme",
+      "q": "PHYS 108 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "1"
+      ],
+      "expected_codes": [
+        "PHYS 108"
+      ],
+      "judge_criteria": "PHYS 108 (Fizik-II Laboratuvarı) dersinin kredisi 1'dir. Cevap 1 değerini vermeli."
+    },
+    {
+      "id": "malz_007",
+      "bolum": "malzeme",
+      "q": "MSNE 304 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MSNE 304"
+      ],
+      "judge_criteria": "MSNE 304 (Taşınım Süreçleri) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "malz_008",
+      "bolum": "malzeme",
+      "q": "MATH 152 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "6"
+      ],
+      "expected_codes": [
+        "MATH 152"
+      ],
+      "judge_criteria": "MATH 152 (Matematik-II) dersinin AKTS değeri 6'dir. Cevap 6 sayısını net vermeli."
+    },
+    {
+      "id": "malz_009",
+      "bolum": "malzeme",
+      "q": "MSNE 102 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MSNE 102"
+      ],
+      "judge_criteria": "MSNE 102 (Bilgisayar Programlamaya Giriş) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "malz_010",
+      "bolum": "malzeme",
+      "q": "MSNE 423 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MSNE 423"
+      ],
+      "judge_criteria": "MSNE 423 (Organik Elektroniğe Giriş) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "malz_011",
+      "bolum": "malzeme",
+      "q": "MSNE 326 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MSNE 326"
+      ],
+      "judge_criteria": "MSNE 326 (Nanobiyoteknoloji) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "malz_012",
+      "bolum": "malzeme",
+      "q": "MSNE 324 dersi kaç AKTS?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MSNE 324"
+      ],
+      "judge_criteria": "MSNE 324 (Malzemelerin Elektrik, Optik ve Manyetik Özellikleri) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "malz_013",
+      "bolum": "malzeme",
+      "q": "MSNE 208 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MSNE 208"
+      ],
+      "judge_criteria": "MSNE 208 (Biyokimyaya Giriş) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "malz_014",
+      "bolum": "malzeme",
+      "q": "MSNE 310 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "MSNE 310"
+      ],
+      "judge_criteria": "MSNE 310 (İstatistik ve Deney Tasarımı) dersinin AKTS değeri 3'dir. Cevap 3 sayısını net vermeli."
+    },
+    {
+      "id": "psik_001",
+      "bolum": "psikoloji",
+      "q": "PSYS 304 dersinin ön şartı nedir?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "PSYS 304"
+      ],
+      "judge_criteria": "PSYS 304 (Feline Cognition) dersinin ön şartı 'Core Courses II + ilgili Fundamental Cluster dersi tamamlanmış olmalı, ya da eğitmen onayı.'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "psik_002",
+      "bolum": "psikoloji",
+      "q": "PSYF 231 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "PSYF 231"
+      ],
+      "judge_criteria": "PSYF 231 (Clinical Psychology and Psychotherapy Approaches) dersinin ön şartı 'Core Courses II'nin (PSYC 101, 102, 103, 104) tamamlanmış olması'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "psik_003",
+      "bolum": "psikoloji",
+      "q": "PSYF 211 dersinin kredisi nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PSYF 211"
+      ],
+      "judge_criteria": "PSYF 211 (Cognitive Psychology) dersinin kredisi 5'dir. Cevap 5 değerini vermeli."
+    },
+    {
+      "id": "psik_004",
+      "bolum": "psikoloji",
+      "q": "PSYU dersinin kredisi nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "PSYU"
+      ],
+      "judge_criteria": "PSYU (Unrestricted Elective (Sınırsız Seçmeli)) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "psik_005",
+      "bolum": "psikoloji",
+      "q": "PSYFXXX kaç kredidir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PSYFXXX"
+      ],
+      "judge_criteria": "PSYFXXX (Fundamental Cluster Dersi (Lecture)) dersinin kredisi 5'dir. Cevap 5 değerini vermeli."
+    },
+    {
+      "id": "psik_006",
+      "bolum": "psikoloji",
+      "q": "PSYI 405 kaç kredidir?",
+      "expected_keywords": [
+        "1"
+      ],
+      "expected_codes": [
+        "PSYI 405"
+      ],
+      "judge_criteria": "PSYI 405 (Erasmus Internship) dersinin kredisi 1'dir. Cevap 1 değerini vermeli."
+    },
+    {
+      "id": "psik_007",
+      "bolum": "psikoloji",
+      "q": "PSYT 330 dersi kaç AKTS?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PSYT 330"
+      ],
+      "judge_criteria": "PSYT 330 (Clinical Interviewing Skills) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "psik_008",
+      "bolum": "psikoloji",
+      "q": "PSYEXXX dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PSYEXXX"
+      ],
+      "judge_criteria": "PSYEXXX (Departmental Elective (Bölüm-içi Seçmeli)) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "psik_009",
+      "bolum": "psikoloji",
+      "q": "PSYS 301 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PSYS 301"
+      ],
+      "judge_criteria": "PSYS 301 (Social Conflict and Violence) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "psik_010",
+      "bolum": "psikoloji",
+      "q": "PSYC 102 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PSYC 102"
+      ],
+      "judge_criteria": "PSYC 102 (Essential Topics in Psychology (II)) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "psik_011",
+      "bolum": "psikoloji",
+      "q": "PSY 3N dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "PSY 3N"
+      ],
+      "judge_criteria": "PSY 3N (Non-Departmental Elective (3000-level)) dersinin AKTS değeri 3'dir. Cevap 3 sayısını net vermeli."
+    },
+    {
+      "id": "psik_012",
+      "bolum": "psikoloji",
+      "q": "PSYF 241 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "10"
+      ],
+      "expected_codes": [
+        "PSYF 241"
+      ],
+      "judge_criteria": "PSYF 241 (Political Psychology) dersinin AKTS değeri 10'dir. Cevap 10 sayısını net vermeli."
+    },
+    {
+      "id": "psik_013",
+      "bolum": "psikoloji",
+      "q": "PSYF 232 dersi kaç AKTS?",
+      "expected_keywords": [
+        "10"
+      ],
+      "expected_codes": [
+        "PSYF 232"
+      ],
+      "judge_criteria": "PSYF 232 (Abnormal Psychology) dersinin AKTS değeri 10'dir. Cevap 10 sayısını net vermeli."
+    },
+    {
+      "id": "psik_014",
+      "bolum": "psikoloji",
+      "q": "PSY 5N kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "PSY 5N"
+      ],
+      "judge_criteria": "PSY 5N (Non-Departmental Elective (5000-level)) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_001",
+      "bolum": "mbg",
+      "q": "MBG 206 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "MBG 206"
+      ],
+      "judge_criteria": "MBG 206 (Microbiology) dersinin ön şartı 'MBG 112'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "mbg_002",
+      "bolum": "mbg",
+      "q": "MBG 420 için ön şart var mı?",
+      "expected_keywords": [],
+      "expected_codes": [
+        "MBG 420"
+      ],
+      "judge_criteria": "MBG 420 (Introduction to Clinical Trials) dersinin ön şartı '-'dır. Cevap bu ön şart(lar)ı belirtmeli."
+    },
+    {
+      "id": "mbg_003",
+      "bolum": "mbg",
+      "q": "MBG 115 kaç kredidir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MBG 115"
+      ],
+      "judge_criteria": "MBG 115 (Chemistry for Life Sciences I) dersinin kredisi 4'dir. Cevap 4 değerini vermeli."
+    },
+    {
+      "id": "mbg_004",
+      "bolum": "mbg",
+      "q": "MBG 304 kaç kredidir?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MBG 304"
+      ],
+      "judge_criteria": "MBG 304 (Bioinformatics) dersinin kredisi 4'dir. Cevap 4 değerini vermeli."
+    },
+    {
+      "id": "mbg_005",
+      "bolum": "mbg",
+      "q": "MBG 402 kaç kredidir?",
+      "expected_keywords": [
+        "3"
+      ],
+      "expected_codes": [
+        "MBG 402"
+      ],
+      "judge_criteria": "MBG 402 (Computational Biology) dersinin kredisi 3'dir. Cevap 3 değerini vermeli."
+    },
+    {
+      "id": "mbg_006",
+      "bolum": "mbg",
+      "q": "MBG 417 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 417"
+      ],
+      "judge_criteria": "MBG 417 (Basic of Neuroscience) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_007",
+      "bolum": "mbg",
+      "q": "MBG 210 dersi kaç AKTS?",
+      "expected_keywords": [
+        "4"
+      ],
+      "expected_codes": [
+        "MBG 210"
+      ],
+      "judge_criteria": "MBG 210 (Science and Ethics) dersinin AKTS değeri 4'dir. Cevap 4 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_008",
+      "bolum": "mbg",
+      "q": "MBG 408 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 408"
+      ],
+      "judge_criteria": "MBG 408 (Biomolecules) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_009",
+      "bolum": "mbg",
+      "q": "MBG 438 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 438"
+      ],
+      "judge_criteria": "MBG 438 (Cell Signaling) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_010",
+      "bolum": "mbg",
+      "q": "MBG 112 kaç AKTS değerinde?",
+      "expected_keywords": [
+        "8"
+      ],
+      "expected_codes": [
+        "MBG 112"
+      ],
+      "judge_criteria": "MBG 112 (General Biology II) dersinin AKTS değeri 8'dir. Cevap 8 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_011",
+      "bolum": "mbg",
+      "q": "MBG 406 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 406"
+      ],
+      "judge_criteria": "MBG 406 (Molecular Medicine) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_012",
+      "bolum": "mbg",
+      "q": "MBG 413 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 413"
+      ],
+      "judge_criteria": "MBG 413 (Biotechnology) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    },
+    {
+      "id": "mbg_013",
+      "bolum": "mbg",
+      "q": "MBG 425 dersinin AKTS'si nedir?",
+      "expected_keywords": [
+        "5"
+      ],
+      "expected_codes": [
+        "MBG 425"
+      ],
+      "judge_criteria": "MBG 425 (Population Genetics) dersinin AKTS değeri 5'dir. Cevap 5 sayısını net vermeli."
+    }
+  ]
+}
